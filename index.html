@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informativos STF e STJ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+/* Layout: barra lateral + área de trabalho; STF azul, STJ verde (mesma identidade do Controle de Súmulas) */
+:root{
+  --bg:#eef0f3; --surface:#ffffff; --surface-2:#f6f7f9; --ink:#18202e; --muted:#5b6578; --line:#d8dde5;
+  --accent:#2a4d8f; --accent-ink:#ffffff; --brass:#a87405;
+  --stf:#2a4d8f; --stj:#1f6a52;
+  --ok:#2f7d4f; --warn:#b4690e; --bad:#b23a3a;
+  --c-none:#dfe3ea; --c-new:#8fb0e8; --c-today:#e7a33e; --c-late:#cf4a4a; --c-learn:#8fcfa9; --c-master:#2f7d4f;
+  --mark:#fde9a8; --tese:#f3efe2;
+  --f-display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius:10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141b; --surface:#171d27; --surface-2:#1d2430; --ink:#e6e9ef; --muted:#9aa4b5; --line:#2b3443;
+    --accent:#86a8ea; --accent-ink:#0f1726; --brass:#e2b24c;
+    --stf:#86a8ea; --stj:#62c6a0;
+    --ok:#5bbf83; --warn:#e3a14a; --bad:#e57373;
+    --c-none:#2a3240; --c-new:#4f6fa8; --c-today:#c98a2c; --c-late:#c04848; --c-learn:#3f8a63; --c-master:#6fd39a;
+    --mark:#5a4a12; --tese:#2a2618;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141b; --surface:#171d27; --surface-2:#1d2430; --ink:#e6e9ef; --muted:#9aa4b5; --line:#2b3443;
+  --accent:#86a8ea; --accent-ink:#0f1726; --brass:#e2b24c;
+  --stf:#86a8ea; --stj:#62c6a0;
+  --ok:#5bbf83; --warn:#e3a14a; --bad:#e57373;
+  --c-none:#2a3240; --c-new:#4f6fa8; --c-today:#c98a2c; --c-late:#c04848; --c-learn:#3f8a63; --c-master:#6fd39a;
+  --mark:#5a4a12; --tese:#2a2618;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand h1{font-size:21px}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:12.5px}
+.overall{display:grid;gap:6px}
+.overall .lbl{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.overall .lbl b{color:var(--ink);font-variant-numeric:tabular-nums}
+.bar{height:7px;border-radius:99px;background:var(--c-none);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+nav.views{display:flex;flex-direction:column;gap:2px}
+nav.views a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:500}
+nav.views a .ic{width:20px;text-align:center;color:var(--muted)}
+nav.views a:hover{background:var(--surface-2)}
+nav.views a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+nav.views a[aria-current="page"] .ic{color:var(--accent-ink)}
+.sync{margin-top:auto;font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);margin-top:5px;flex:none}
+main{padding:26px 28px 60px;min-width:0}
+.view{display:none;max-width:1100px}
+.view.on{display:block}
+.vhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+.vhead h2{font-size:28px}
+.vhead p{margin:4px 0 0;color:var(--muted);max-width:66ch}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.btn.danger.solid{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:4px 9px;font-size:13px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-weight:500;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+select,input[type=text],input[type=search],input[type=number],input[type=date],textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+textarea{width:100%;min-height:120px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+label.f{display:grid;gap:4px;font-size:12.5px;color:var(--muted);font-weight:500}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:12px}
+.toolbar .grow{flex:1 1 260px}
+.toolbar .grow input{width:100%}
+.toolbar select{max-width:220px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:6px 2px 12px;color:var(--muted);font-size:13.5px}
+.meta-row b{color:var(--ink);font-variant-numeric:tabular-nums}
+.news{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.news button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px 5px 6px;cursor:pointer;font-size:13px;display:flex;gap:7px;align-items:center}
+.news button:hover{border-color:var(--accent)}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:99px;color:#fff;background:var(--tc)}
+.tag[data-t="STF"]{--tc:var(--stf)} .tag[data-t="STJ"]{--tc:var(--stj)}
+:root[data-theme="dark"] .tag{color:#0f1726}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag{color:#0f1726}}
+/* cartões */
+.list{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--tc);border-radius:var(--radius);padding:15px 18px;display:grid;gap:9px}
+.card[data-t="STF"]{--tc:var(--stf)} .card[data-t="STJ"]{--tc:var(--stj)}
+.card.isread{background:var(--surface-2)}
+.card .top{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.card .num{font-weight:700;font-size:13.5px;color:var(--tc);letter-spacing:.02em}
+.chip{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 8px}
+.chip.rg{color:var(--brass);border-color:color-mix(in srgb,var(--brass) 45%,var(--line));font-weight:600}
+.card .tit{font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.3}
+.card .proc{font-size:13px;color:var(--muted)}
+.tese{background:var(--tese);border-radius:8px;padding:10px 14px;border-left:3px solid var(--brass)}
+.tese .lb,.full .lb{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brass)}
+.tese p{margin:4px 0 0;font-family:var(--f-display);font-size:16.5px;line-height:1.55}
+.card .res{font-family:var(--f-display);font-size:17px;line-height:1.6;margin:0;max-width:78ch}
+details.more{border-top:1px dashed var(--line);padding-top:6px}
+details.more summary{cursor:pointer;color:var(--accent);font-weight:500;font-size:13.5px;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"▸ "}
+details.more[open] summary::before{content:"▾ "}
+.full{display:grid;gap:10px;margin-top:8px;max-width:78ch}
+.full p{margin:0;font-family:var(--f-display);font-size:16px;line-height:1.6}
+.card .acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.card .acts .sp{flex:1}
+.tog{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;gap:6px;align-items:center}
+.tog[aria-pressed="true"].rd{background:var(--ok);border-color:var(--ok);color:#fff}
+.tog[aria-pressed="true"].im{background:color-mix(in srgb,var(--brass) 18%,var(--surface));border-color:var(--brass);color:var(--brass)}
+.lnk{font-size:13px;text-decoration:none;padding:4px 6px;background:none;border:0;color:var(--accent);cursor:pointer}
+.lnk:hover{text-decoration:underline}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+.more-btn{display:flex;justify-content:center;padding:16px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.panel h3{font-size:18px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.tile .k{font-size:12.5px;color:var(--muted);font-weight:500}
+.tile .v{font-family:var(--f-display);font-size:27px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.tile .s{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tile.late .v{color:var(--bad)} .tile.today .v{color:var(--warn)} .tile.good .v{color:var(--ok)}
+.arow{display:grid;grid-template-columns:minmax(120px,190px) 1fr 74px;gap:10px;align-items:center;font-size:13.5px;padding:4px 0}
+.arow .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font:11px var(--f-body)}
+.days{display:grid;gap:6px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.day.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day.done .dh .dn{color:var(--ok)}
+.day .dh{display:grid;grid-template-columns:70px 92px 1fr 150px 18px;gap:10px;align-items:center;padding:10px 14px;cursor:pointer;width:100%;border:0;background:none;text-align:left}
+.day .dh .dn{font-weight:700}
+.day .dh .dd{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13.5px}
+.day .dh .rng{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day .dh .pg{display:grid;gap:3px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.day .db{padding:0 14px 14px;display:none}
+.day.open .db{display:grid;gap:4px}
+.mini{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+.mini .h{font-weight:600;font-size:13.5px}
+.mini .h small{color:var(--muted);font-weight:400}
+.mini p{margin:2px 0 0;font-family:var(--f-display);font-size:15.5px}
+.mini input{width:18px;height:18px;margin-top:2px;accent-color:var(--ok)}
+.status-line{padding:12px 14px;border-radius:var(--radius);margin-bottom:14px;font-weight:500;border:1px solid var(--line);background:var(--surface)}
+.status-line.ahead{border-color:var(--ok);color:var(--ok)}
+.status-line.behind{border-color:var(--warn);color:var(--warn)}
+.fc-wrap{display:grid;gap:14px;justify-items:center}
+.fc{width:min(760px,100%);min-height:320px;perspective:1600px;cursor:pointer;border:0;background:none;padding:0}
+.fc .in{position:relative;width:100%;min-height:320px;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .in{transform:rotateY(180deg)}
+.fc .face{position:absolute;inset:0;backface-visibility:hidden;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--tc);border-radius:14px;padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:10px;text-align:left;overflow:auto}
+.fc .back{transform:rotateY(180deg)}
+.fc .face .kk{font-size:12.5px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.fc .face .big{font-family:var(--f-display);font-size:23px;font-weight:700;line-height:1.3}
+.fc .face .tx{font-family:var(--f-display);font-size:18px;line-height:1.55}
+.fc .face .hint{font-size:13px;color:var(--muted)}
+.fc-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
+.score{display:flex;gap:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.score .o{color:var(--ok)} .score .x{color:var(--bad)}
+.pv-q{display:grid;gap:14px}
+.pv-q .lead{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.pv-q .stmt{font-family:var(--f-display);font-size:20px;line-height:1.6;margin:0;max-width:74ch}
+.ce{display:flex;gap:10px;flex-wrap:wrap}
+.ce button{flex:1 1 160px;padding:14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);font-weight:700;font-size:16px;cursor:pointer}
+.ce button.c{border-color:color-mix(in srgb,var(--ok) 55%,var(--line));color:var(--ok)}
+.ce button.e{border-color:color-mix(in srgb,var(--bad) 55%,var(--line));color:var(--bad)}
+.ce button:hover{background:var(--surface-2)}
+.verdict{border-radius:10px;padding:12px 14px;font-weight:600;display:grid;gap:4px}
+.verdict.good{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.verdict.bad{background:color-mix(in srgb,var(--bad) 13%,transparent);color:var(--bad)}
+.verdict span{font-weight:400;color:var(--ink)}
+.cmp{display:grid;gap:10px}
+.cmp .lbl{font-size:12.5px;color:var(--muted);font-weight:600}
+.cmp p{margin:2px 0 0;font-family:var(--f-display);font-size:17px;line-height:1.55}
+mark.o{background:color-mix(in srgb,var(--ok) 25%,transparent)}
+mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:line-through}
+.errlist{display:grid;gap:8px;margin-top:8px}
+.errlist div{border-left:3px solid var(--bad);padding:4px 10px;background:var(--surface-2);border-radius:0 8px 8px 0;font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted);margin:10px 0}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(13px,1fr));gap:3px}
+.cell{aspect-ratio:1;border-radius:3px;border:0;padding:0;cursor:pointer;background:var(--c-none)}
+.cell.new{background:var(--c-new)} .cell.today{background:var(--c-today)} .cell.late{background:var(--c-late)} .cell.learn{background:var(--c-learn)} .cell.master{background:var(--c-master)}
+.cell:hover{outline:2px solid var(--ink);outline-offset:1px}
+.peek{margin-top:12px;min-height:60px}
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,#000 55%,transparent);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.overlay.on{display:flex}
+.dialog{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;width:min(560px,100%);display:grid;gap:14px;max-height:92vh;overflow:auto}
+.study{width:min(780px,100%)}
+.study .front{border-left:4px solid var(--tc);padding:4px 0 4px 14px;display:grid;gap:6px}
+.study .front .big{font-family:var(--f-display);font-size:22px;font-weight:700;line-height:1.3}
+.study .ans{font-family:var(--f-display);font-size:18px;line-height:1.55;background:var(--surface-2);border-radius:10px;padding:16px 18px}
+.study .ans.hid{filter:blur(7px);user-select:none}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grades button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 6px;cursor:pointer;display:grid;gap:2px;justify-items:center;font-weight:600}
+.grades button small{font-weight:400;color:var(--muted);font-size:12px}
+.grades button:hover{border-color:var(--accent)}
+.grades button.g0,.grades button.g1,.grades button.g2{border-bottom:3px solid var(--bad)}
+.grades button.g3{border-bottom:3px solid var(--warn)}
+.grades button.g4,.grades button.g5{border-bottom:3px solid var(--ok)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+.toast.on{opacity:1}
+.loading{padding:60px 0;text-align:center;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.kbd{font:12px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;color:var(--muted)}
+.muted{color:var(--muted)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:14px 16px;gap:12px}
+  nav.views{flex-direction:row;overflow-x:auto}
+  nav.views a{flex:none;padding:7px 10px}
+  .sync{margin-top:0}
+  main{padding:18px 16px 60px}
+  .day .dh{grid-template-columns:56px 1fr 18px}
+  .day .dh .rng,.day .dh .pg{grid-column:1 / -1}
+  .arow{grid-template-columns:110px 1fr 64px}
+  .fc .face{padding:20px}
+  .grades{grid-template-columns:repeat(2,1fr)}
+  .toolbar select{max-width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <h1>Informativos STF · STJ</h1>
+      <p id="baseInfo">Carregando…</p>
+    </div>
+    <div class="overall">
+      <div class="lbl"><span>Progresso geral</span><b id="ovPct">0%</b></div>
+      <div class="bar"><i id="ovBar" style="width:0"></i></div>
+      <div class="lbl"><span id="ovCount">0 lidos</span><span id="ovDue"></span></div>
+    </div>
+    <nav class="views" aria-label="Seções">
+      <a href="#julgados" data-v="julgados"><span class="ic">≡</span>Julgados</a>
+      <a href="#progresso" data-v="progresso"><span class="ic">◎</span>Progresso</a>
+      <a href="#cronograma" data-v="cronograma"><span class="ic">▦</span>Cronograma</a>
+      <a href="#flashcards" data-v="flashcards"><span class="ic">◈</span>Flashcards</a>
+      <a href="#prova" data-v="prova"><span class="ic">◉</span>Modo Prova</a>
+      <a href="#revisao" data-v="revisao"><span class="ic">↻</span>Revisão espaçada</a>
+      <a href="#backup" data-v="backup"><span class="ic">⇅</span>Backup</a>
+    </nav>
+    <div class="sync"><span class="dot"></span><span>Progresso salvo neste navegador. Faça backups de vez em quando.</span></div>
+  </aside>
+
+  <main>
+    <div id="loading" class="loading">Carregando informativos…</div>
+
+    <section class="view" id="v-julgados" aria-labelledby="h-jul">
+      <div class="vhead"><div><h2 id="h-jul">Julgados</h2>
+        <p>Pesquise por palavra, processo ou relator (ex.: <span class="kbd">tribunal do júri</span>, <span class="kbd">ADI 7.469</span>, <span class="kbd">Tema 1.308</span>). Escolha um informativo para ler a edição inteira.</p></div></div>
+      <div class="news" id="news" aria-label="Edições mais recentes"></div>
+      <div class="toolbar">
+        <div class="grow"><label class="sr-only" for="q">Pesquisar julgados</label><input type="search" id="q" placeholder="Digite para pesquisar julgados" autocomplete="off"></div>
+        <div class="seg" role="group" aria-label="Tribunal" id="segT">
+          <button type="button" data-t="all" aria-pressed="true">Todos</button>
+          <button type="button" data-t="STF" aria-pressed="false">STF</button>
+          <button type="button" data-t="STJ" aria-pressed="false">STJ</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="f" for="fI">Informativo<select id="fI"></select></label>
+        <label class="f" for="fY">Ano<select id="fY"></select></label>
+        <label class="f" for="fR">Ramo<select id="fR"></select></label>
+        <label class="f" for="fG">Órgão julgador<select id="fG"></select></label>
+        <label class="f" for="fP">Precedente<select id="fP"><option value="all">Todos</option><option value="rg">Repercussão geral</option><option value="rep">Repetitivo / IAC / RQF</option><option value="cc">Controle concentrado</option><option value="tese">Com tese ou destaque</option><option value="afet">Afetações (temas pendentes no STJ)</option></select></label>
+        <label class="f" for="fS">Situação<select id="fS"><option value="all">Todos</option><option value="naolida">Não lidos</option><option value="lida">Lidos</option><option value="imp">★ Importantes</option></select></label>
+        <label class="f" for="fO">Ordem<select id="fO"><option value="rec">Mais recentes</option><option value="ant">Mais antigos</option></select></label>
+      </div>
+      <div class="meta-row">
+        <span><b id="cnt">0</b> julgados · <b id="cntRead">0</b> lidos neste filtro</span>
+        <span class="row">
+          <button class="btn sm" id="markAll" type="button">✓ Marcar filtrados como lidos</button>
+          <button class="btn sm" id="clearAll" type="button">↺ Desmarcar filtrados</button>
+        </span>
+      </div>
+      <div class="list" id="list"></div>
+      <div class="more-btn"><button class="btn" id="moreBtn" type="button">Mostrar mais</button></div>
+    </section>
+
+    <section class="view" id="v-progresso" aria-labelledby="h-prog">
+      <div class="vhead"><div><h2 id="h-prog">Progresso</h2><p>Leitura acumulada, ritmo recente e cobertura por tribunal, ano e ramo.</p></div></div>
+      <div class="tiles" id="progTiles"></div>
+      <div class="grid2">
+        <div class="panel chart">
+          <div class="row" style="justify-content:space-between;margin-bottom:10px">
+            <h3 style="margin:0">Leitura ao longo do tempo</h3>
+            <div class="seg" role="group" aria-label="Período" id="segChart">
+              <button type="button" data-c="d" aria-pressed="true">Diário (30 dias)</button>
+              <button type="button" data-c="w" aria-pressed="false">Semanal (12 sem.)</button>
+            </div>
+          </div>
+          <div id="chart"></div>
+        </div>
+        <div class="panel"><h3>Por tribunal e ano</h3><div id="byTrib"></div></div>
+      </div>
+      <div class="panel" style="margin-top:14px"><h3>Por ramo do Direito</h3><div id="byArea"></div></div>
+    </section>
+
+    <section class="view" id="v-cronograma" aria-labelledby="h-cron">
+      <div class="vhead"><div><h2 id="h-cron">Cronograma de leitura</h2><p>Distribui os julgados do recorte em blocos diários, da edição mais antiga para a mais nova. A leitura marcada aqui é a mesma da lista.</p></div></div>
+      <div class="toolbar">
+        <label class="f" for="pStart">Início<input type="date" id="pStart"></label>
+        <label class="f" for="pDays">Dias<input type="number" id="pDays" min="1" max="730" value="30" style="width:90px"></label>
+        <label class="f" for="pT">Tribunal<select id="pT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
+        <label class="f" for="pY">Ano<select id="pY"></select></label>
+        <label class="f" for="pR">Ramo<select id="pR"></select></label>
+        <button class="btn primary" id="pSave" type="button" style="align-self:flex-end">Gerar cronograma</button>
+      </div>
+      <div id="planOut"></div>
+    </section>
+
+    <section class="view" id="v-flashcards" aria-labelledby="h-fc">
+      <div class="vhead"><div><h2 id="h-fc">Flashcards</h2><p>Clique no cartão (ou tecle <span class="kbd">espaço</span>) para revelar. Setas navegam; <span class="kbd">1</span> errei, <span class="kbd">2</span> acertei.</p></div></div>
+      <div class="toolbar">
+        <label class="f" for="fcT">Tribunal<select id="fcT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
+        <label class="f" for="fcY">Ano<select id="fcY"></select></label>
+        <label class="f" for="fcR">Ramo<select id="fcR"></select></label>
+        <label class="f" for="fcF">Quais<select id="fcF"><option value="all">Todos</option><option value="imp">Só importantes</option><option value="naolida">Só não lidos</option><option value="tese">Só com tese fixada</option></select></label>
+        <label class="f" for="fcM">Modo<select id="fcM"><option value="tit">Tema → entendimento</option><option value="txt">Entendimento → tema</option></select></label>
+        <button class="btn primary" id="fcBuild" type="button" style="align-self:flex-end">Montar baralho</button>
+      </div>
+      <div class="fc-wrap">
+        <div class="meta-row" style="width:min(760px,100%)"><span id="fcPos">Card 0 de 0</span><span class="score"><span class="o" id="fcOk">✓ 0</span><span class="x" id="fcErr">✗ 0</span></span></div>
+        <button class="fc" id="fcCard" type="button" aria-live="polite"><div class="in"><div class="face front" id="fcFront"></div><div class="face back" id="fcBack"></div></div></button>
+        <div class="fc-bar">
+          <button class="btn" id="fcPrev" type="button" aria-label="Anterior">‹</button>
+          <button class="btn danger" id="fcNo" type="button">✗ Errei → pular</button>
+          <button class="btn primary" id="fcYes" type="button">✓ Acertei</button>
+          <button class="btn" id="fcNext" type="button" aria-label="Próximo">›</button>
+        </div>
+        <div class="fc-bar">
+          <button class="btn sm" id="fcShuffle" type="button">⇄ Embaralhar</button>
+          <button class="btn sm" id="fcRestart" type="button">↺ Recomeçar</button>
+          <button class="btn sm" id="fcErrOnly" type="button">Rever só os errados</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="v-prova" aria-labelledby="h-pv">
+      <div class="vhead"><div><h2 id="h-pv">Modo Prova · Certo ou Errado</h2><p>Cada item traz a tese ou o resumo oficial do julgado, ou uma versão com uma alteração no estilo Cespe. Responda com <span class="kbd">C</span> ou <span class="kbd">E</span>; <span class="kbd">Enter</span> passa para o próximo. Os itens errados entram na revisão espaçada.</p></div></div>
+      <div class="toolbar">
+        <label class="f" for="pvT">Tribunal<select id="pvT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
+        <label class="f" for="pvY">Ano<select id="pvY"></select></label>
+        <label class="f" for="pvR">Ramo<select id="pvR"></select></label>
+        <label class="f" for="pvF">Quais<select id="pvF"><option value="all">Todos</option><option value="imp">Só importantes</option><option value="lida">Só os que já li</option><option value="errei">Os que já errei aqui</option></select></label>
+        <label class="f" for="pvN">Itens<select id="pvN"><option>10</option><option selected>20</option><option>50</option></select></label>
+        <button class="btn primary" id="pvStart" type="button" style="align-self:flex-end">Começar rodada</button>
+      </div>
+      <div class="tiles" id="pvTiles"></div>
+      <div class="panel" id="pvBox"></div>
+    </section>
+
+    <section class="view" id="v-revisao" aria-labelledby="h-rev">
+      <div class="vhead"><div><h2 id="h-rev">Revisão espaçada</h2><p>Algoritmo SM-2: cada julgado volta no intervalo certo conforme a sua nota. Cada quadrado da grade é um julgado; clique para ver.</p></div></div>
+      <div class="tiles" id="srTiles"></div>
+      <div class="toolbar">
+        <label class="f" for="srT">Tribunal<select id="srT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
+        <label class="f" for="srY">Ano<select id="srY"></select></label>
+        <label class="f" for="srR">Ramo<select id="srR"></select></label>
+        <label class="f" for="srN">Novos por dia<input type="number" id="srN" min="1" max="200" value="20" style="width:90px"></label>
+        <span class="row" style="align-self:flex-end">
+          <button class="btn primary" id="srDue" type="button">⚡ Estudar pendentes</button>
+          <button class="btn" id="srNew" type="button">＋ Estudar novos</button>
+          <button class="btn danger" id="srReset" type="button">↺ Resetar revisão</button>
+        </span>
+      </div>
+      <div class="panel">
+        <div class="legend">
+          <span><i class="sw" style="background:var(--c-none)"></i>Não visto</span>
+          <span><i class="sw" style="background:var(--c-new)"></i>Novo hoje</span>
+          <span><i class="sw" style="background:var(--c-today)"></i>Para hoje</span>
+          <span><i class="sw" style="background:var(--c-late)"></i>Atrasado</span>
+          <span><i class="sw" style="background:var(--c-learn)"></i>Aprendido</span>
+          <span><i class="sw" style="background:var(--c-master)"></i>Dominado (intervalo ≥ 21 dias)</span>
+        </div>
+        <div class="cells" id="cells"></div>
+        <div class="peek" id="peek"><span class="muted">Clique num quadrado para ver o julgado.</span></div>
+      </div>
+    </section>
+
+    <section class="view" id="v-backup" aria-labelledby="h-bk">
+      <div class="vhead"><div><h2 id="h-bk">Backup do progresso</h2><p>O progresso fica salvo neste navegador. Use o backup para guardar uma cópia ou levar o progresso para outro aparelho.</p></div></div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>Exportar</h3>
+          <div class="row" style="margin-bottom:10px">
+            <button class="btn primary" id="bkSave" type="button" hidden>↓ Baixar arquivo de backup</button>
+            <button class="btn" id="bkCopy" type="button">Copiar backup</button>
+          </div>
+          <label class="sr-only" for="bkOut">Conteúdo do backup</label>
+          <textarea id="bkOut" readonly></textarea>
+        </div>
+        <div class="panel">
+          <h3>Importar</h3>
+          <div class="row" style="margin-bottom:10px">
+            <label class="btn" for="bkFile">Carregar arquivo de backup</label>
+            <input type="file" id="bkFile" accept=".json,application/json" class="sr-only">
+          </div>
+          <label class="sr-only" for="bkIn">Colar backup</label>
+          <textarea id="bkIn" placeholder="Cole aqui o conteúdo do backup"></textarea>
+          <div class="row" style="margin-top:10px"><button class="btn primary" id="bkRestore" type="button">Restaurar</button></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:14px;border-color:color-mix(in srgb,var(--bad) 40%,var(--line))">
+        <h3 style="color:var(--bad)">Zona de risco</h3>
+        <p class="muted" style="margin-top:0">Apaga leituras, destaques, revisões, Modo Prova e cronograma. Exporte um backup antes.</p>
+        <button class="btn danger" id="bkWipe" type="button">Apagar todo o progresso</button>
+      </div>
+      <p class="muted" style="font-size:12.5px;margin-top:18px" id="fontes"></p>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="studyOv" role="dialog" aria-modal="true" aria-labelledby="stTitle">
+  <div class="dialog study">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <strong id="stTitle">Revisão</strong><span class="muted" id="stPos"></span>
+      <button class="btn sm" id="stClose" type="button">Fechar</button>
+    </div>
+    <div class="bar"><i id="stBar" style="width:0"></i></div>
+    <div id="stBody"></div>
+  </div>
+</div>
+<div class="overlay" id="askOv" role="dialog" aria-modal="true" aria-labelledby="askMsg">
+  <div class="dialog">
+    <p id="askMsg" style="margin:0;font-weight:500"></p>
+    <div id="askTypeWrap" hidden><label class="f" for="askType">Digite <b>APAGAR</b> para confirmar<input type="text" id="askType" autocomplete="off"></label></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" id="askNo" type="button">Cancelar</button><button class="btn primary" id="askYes" type="button">Confirmar</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>iso(new Date());
+function parseIso(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function addDays(s,n){const d=parseIso(s);d.setDate(d.getDate()+n);return iso(d)}
+function ymd(s){const [y,m,d]=s.split('-').map(Number);return [y,m-1,d]}
+function diffDays(a,b){return Math.round((Date.UTC(...ymd(b))-Date.UTC(...ymd(a)))/864e5)}
+const br=s=>{if(!s)return'';const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
+const brShort=s=>{const [y,m,d]=s.split('-');return d+'/'+m};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const fmt=n=>n.toLocaleString('pt-BR');
+const pct=(a,b)=>b?Math.round(a*1000/b)/10:0;
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200)}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copiado');return true}catch(e){toast('Não foi possível copiar: selecione e copie manualmente');return false}}
+function ask(msg,{okLabel='Confirmar',danger=false,typed=false}={}){
+  return new Promise(res=>{
+    $('#askMsg').textContent=msg;const yes=$('#askYes');yes.textContent=okLabel;yes.className='btn '+(danger?'danger solid':'primary');
+    $('#askTypeWrap').hidden=!typed;$('#askType').value='';$('#askOv').classList.add('on');(typed?$('#askType'):yes).focus();
+    const done=v=>{$('#askOv').classList.remove('on');yes.onclick=null;$('#askNo').onclick=null;res(v)};
+    yes.onclick=()=>{if(typed&&$('#askType').value.trim().toUpperCase()!=='APAGAR'){toast('Digite APAGAR para confirmar');return}done(true)};
+    $('#askNo').onclick=()=>done(false);
+  });
+}
+
+/* ---------- dados ---------- */
+let DATA=[],BYID={},MANIFEST=null,RAMOS=[],YEARS=[],ORGS=[];
+const TXT={},TXT_LOADING={};
+const label=r=>r.ext?r.t+' · Edição Extraordinária '+r.ext:r.t+' · Informativo '+r.inf;
+const ikey=r=>r.t+'-'+(r.ext?'EX'+r.ext:r.inf);
+const ishort=r=>r.ext?r.t+' Ext. '+r.ext:r.t+' '+r.inf;
+const studyText=r=>r.tese||r.res;
+async function loadTxt(r){
+  const k=r.t+'-'+r.y;
+  if(TXT[k])return TXT[k];
+  if(!TXT_LOADING[k])TXT_LOADING[k]=fetch('data/txt-'+k+'.json').then(x=>x.json()).then(j=>TXT[k]=j);
+  return TXT_LOADING[k];
+}
+
+/* ---------- estado ---------- */
+const LS_KEY='informativos-v1';
+function blank(){return {v:1,upd:0,read:{},imp:{},sr:{},srLog:{},plan:null,newPerDay:20,prova:{ok:0,err:0,wrong:{}}}}
+function migrate(o){const b=blank();if(!o||typeof o!=='object')return b;for(const k in b){if(o[k]!==undefined)b[k]=o[k]}
+  if(!b.prova||typeof b.prova!=='object')b.prova={ok:0,err:0,wrong:{}};if(!b.prova.wrong)b.prova.wrong={};return b}
+let S=blank();try{const raw=lsGet(LS_KEY);if(raw)S=migrate(JSON.parse(raw))}catch(e){}
+function save(){S.upd=Date.now();lsSet(LS_KEY,JSON.stringify(S))}
+function setRead(id,on){if(on)S.read[id]=S.read[id]||today();else delete S.read[id]}
+
+/* ---------- SM-2 ---------- */
+const GRADES=[['Não lembrei','😵'],['Muito difícil','😟'],['Difícil','😐'],['Razoável','🙂'],['Bem','😊'],['Perfeito','🤩']];
+function sm2(c,q){
+  c=c?{...c}:{e:2.5,i:0,r:0,due:today(),f:today()};
+  if(q<3){c.r=0;c.i=1}else{c.i=c.r===0?1:c.r===1?6:Math.max(1,Math.round(c.i*c.e));c.r++}
+  c.e=Math.max(1.3,+(c.e+(0.1-(5-q)*(0.08+(5-q)*0.02))).toFixed(3));
+  c.due=addDays(today(),c.i);c.l=today();c.q=q;return c;
+}
+function srState(id){const c=S.sr[id];if(!c)return 'none';const t=today();
+  if(c.due<t)return 'late';if(c.due===t)return 'today';if(c.f===t)return 'new';if(c.i>=21)return 'master';return 'learn'}
+function srStreak(){let d=today(),n=0;if(!S.srLog[d])d=addDays(d,-1);while(S.srLog[d]){n++;d=addDays(d,-1)}return n}
+
+/* ---------- filtros ---------- */
+function inScope(r,t,y,ramo){return (t==='all'||r.t===t)&&(y==='all'||r.y===+y)&&(ramo==='all'||(r.ramos||[r.ramo]).includes(ramo))}
+function fillSel(sel,items,allLabel){const cur=sel.value||'all';sel.innerHTML=`<option value="all">${allLabel}</option>`+items.map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join('');sel.value=[...sel.options].some(o=>o.value===cur)?cur:'all'}
+function fillCommon(){
+  const ys=YEARS.map(y=>[y,String(y)]),rs=RAMOS.map(r=>[r.r,r.r+' ('+r.n+')']),rs2=RAMOS.map(r=>[r.r,r.r]);
+  ['#fY','#pY','#fcY','#pvY','#srY'].forEach(s=>fillSel($(s),ys,'Todos os anos'));
+  fillSel($('#fR'),rs,'Todos os ramos');['#pR','#fcR','#pvR','#srR'].forEach(s=>fillSel($(s),rs2,'Todos os ramos'));
+  fillSel($('#fG'),ORGS.map(o=>[o,o]),'Todos');
+  fillInf();
+}
+function fillInf(){
+  const t=F.t;const infs={};DATA.forEach(r=>{if(t==='all'||r.t===t){const k=ikey(r);infs[k]=infs[k]||{k,l:ishort(r),sd:r.sd,n:0};infs[k].n++;if(r.sd>infs[k].sd)infs[k].sd=r.sd}});
+  const list=Object.values(infs).sort((a,b)=>b.sd.localeCompare(a.sd)||b.l.localeCompare(a.l));
+  fillSel($('#fI'),list.map(o=>[o.k,`${o.l} (${o.n})`]),'Todos os informativos');
+}
+
+/* ---------- lista ---------- */
+const F={q:'',t:'all',inf:'all',y:'all',ramo:'all',org:'all',p:'all',s:'all',o:'rec'};
+let LIST=[],shown=0;const PAGE=40;
+function hlRegex(){
+  const terms=F.q.trim().split(/\s+/).filter(w=>w.length>2&&!/^(stf|stj)$/i.test(w));
+  if(!terms.length)return null;
+  const map={a:'[aáàâãä]',e:'[eéèêë]',i:'[iíìîï]',o:'[oóòôõö]',u:'[uúùûü]',c:'[cç]'};
+  return new RegExp('('+terms.map(w=>Array.from(norm(w)).map(ch=>map[ch]||ch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('')).join('|')+')','gi');
+}
+function hl(text,re){if(!re)return esc(text);return String(text).split(re).map((p,i)=>i%2?'<mark>'+esc(p)+'</mark>':esc(p)).join('')}
+function filterList(){
+  const words=norm(F.q.trim()).split(/\s+/).filter(Boolean).map(w=>w.replace(/\./g,''));
+  let out=DATA.filter(r=>{
+    if(!inScope(r,F.t,F.y,F.ramo))return false;
+    if(F.inf!=='all'&&ikey(r)!==F.inf)return false;
+    if(F.org!=='all'&&!r.org.split(' e ').includes(F.org))return false;
+    if(F.p==='rg'&&!r.rg)return false;
+    if(F.p==='rep'&&r.tipo!=='rep')return false;
+    if(F.p==='cc'&&r.tipo!=='cc')return false;
+    if(F.p==='tese'&&!r.tese)return false;
+    if(F.p==='afet'&&r.tipo!=='afet')return false;
+    if(F.s==='naolida'&&S.read[r.id])return false;
+    if(F.s==='lida'&&!S.read[r.id])return false;
+    if(F.s==='imp'&&!S.imp[r.id])return false;
+    for(const w of words)if(!r.k.includes(w))return false;
+    return true;
+  });
+  out.sort((a,b)=>F.o==='ant'?(a.sd.localeCompare(b.sd)||a.ord-b.ord):(b.sd.localeCompare(a.sd)||a.t.localeCompare(b.t)||a.ord-b.ord));
+  return out;
+}
+function relLine(r){return `${esc(r.proc)}${r.rel?' · Rel. '+esc(r.rel.replace(/^Ministr[oa]\s+/,'Min. ')):''}${r.red?' · Red. p/ acórdão '+esc(r.red.replace(/^Ministr[oa]\s+/,'Min. ')):''}`}
+function cardHTML(r,re){
+  const rd=!!S.read[r.id],im=!!S.imp[r.id];
+  return `<article class="card${rd?' isread':''}" data-t="${r.t}" data-id="${r.id}">
+    <div class="top"><span class="num">${esc(label(r))}${r.di?' · '+br(r.di):''}</span>
+      <span class="chip">${esc(r.org)}</span>${r.dj?`<span class="chip">julg. ${br(r.dj)}${r.virt?' (virtual)':''}</span>`:''}
+      ${r.rg?`<span class="chip rg">Tema ${esc(r.rg)} RG</span>`:''}${r.rep?`<span class="chip rg">${esc(r.rep)}</span>`:''}${r.tipo==='afet'?'<span class="chip">Sem tese: tema afetado/pendente</span>':''}
+      ${(r.ramos||[r.ramo]).map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>
+    ${r.mat?`<div class="proc" style="font-size:12.5px">${hl(r.mat,re)}</div>`:''}
+    <h3 class="tit">${hl(r.tit,re)}</h3>
+    <div class="proc">${relLine(r)}</div>
+    ${r.tese?`<div class="tese"><div class="lb">${r.t==='STJ'?'Destaque':'Tese fixada'}</div><p>${hl(r.tese,re)}</p></div>`:''}
+    ${r.res?`<p class="res">${hl(r.res,re)}</p>`:''}
+    <details class="more" data-id="${r.id}"><summary>${r.t==='STJ'?'Ler informações do inteiro teor':'Ler a fundamentação completa'}</summary><div class="full">Carregando…</div></details>
+    <div class="acts">
+      <button type="button" class="tog rd" data-act="read" aria-pressed="${rd}">${rd?'✓ Lido':'○ Marcar como lido'}</button>
+      <button type="button" class="tog im" data-act="imp" aria-pressed="${im}">${im?'★ Importante':'☆ Importante'}</button>
+      <span class="sp"></span>
+      <button type="button" class="lnk" data-act="copy">Copiar</button>
+      ${r.u?`<a class="lnk" href="${esc(r.u)}" target="_blank" rel="noopener">Fonte oficial ↗</a>`:''}
+    </div></article>`;
+}
+function renderList(reset){
+  if(reset){LIST=filterList();shown=0;$('#list').innerHTML=''}
+  const re=hlRegex();const slice=LIST.slice(shown,shown+PAGE);shown+=slice.length;
+  $('#list').insertAdjacentHTML('beforeend',slice.map(r=>cardHTML(r,re)).join(''));
+  if(!LIST.length)$('#list').innerHTML='<div class="empty">Nenhum julgado encontrado com esses filtros.</div>';
+  $('#moreBtn').hidden=shown>=LIST.length;$('#moreBtn').textContent=`Mostrar mais (${fmt(LIST.length-shown)} restantes)`;
+  $('#cnt').textContent=fmt(LIST.length);$('#cntRead').textContent=fmt(LIST.filter(r=>S.read[r.id]).length);
+}
+function updateCard(id){const el=document.querySelector(`#list .card[data-id="${id}"]`);if(!el)return;const open=el.querySelector('details').open;el.outerHTML=cardHTML(BYID[id],hlRegex());if(open){const d=document.querySelector(`#list .card[data-id="${id}"] details`);d.open=true;fillFull(d)}}
+async function fillFull(det){
+  const r=BYID[det.dataset.id];const box=det.querySelector('.full');
+  try{const t=await loadTxt(r);const o=t[r.id]||[];const ps=Array.isArray(o)?o:(o.p||[]);const leg=Array.isArray(o)?'':(o.l||'');
+    box.innerHTML=(ps.length?ps.map(p=>/^\(\d+\)/.test(p)?`<p class="muted" style="font-size:14px">${esc(p)}</p>`:`<p>${esc(p)}</p>`).join(''):'<p class="muted">Sem texto adicional para este julgado.</p>')
+      +(leg?`<div><div class="lb">Legislação</div><p class="muted" style="font-size:14px;white-space:pre-line">${esc(leg)}</p></div>`:'');
+  }catch(e){box.innerHTML='<p class="muted">Não foi possível carregar o texto. Tente de novo.</p>'}
+}
+function onListClick(e){
+  const b=e.target.closest('[data-act]');if(!b)return;const id=b.closest('[data-id]').dataset.id;const r=BYID[id];
+  if(b.dataset.act==='read'){setRead(id,!S.read[id]);save();updateCard(id);refreshHeader();$('#cntRead').textContent=fmt(LIST.filter(x=>S.read[x.id]).length)}
+  else if(b.dataset.act==='imp'){if(S.imp[id])delete S.imp[id];else S.imp[id]=1;save();updateCard(id)}
+  else if(b.dataset.act==='copy'){copyText(`${r.tit} (${r.proc}, ${label(r)}). ${r.tese?(r.t==='STJ'?'Destaque: ':'Tese: ')+r.tese+' ':''}${r.res}`)}
+}
+
+/* ---------- cabeçalho ---------- */
+function refreshHeader(){
+  const n=DATA.filter(r=>S.read[r.id]).length,T=DATA.length;
+  $('#ovPct').textContent=pct(n,T).toLocaleString('pt-BR')+'%';$('#ovBar').style.width=pct(n,T)+'%';
+  $('#ovCount').textContent=fmt(n)+' de '+fmt(T)+' lidos';
+  let due=0;for(const id in S.sr){if(!BYID[id])continue;const st=srState(id);if(st==='late'||st==='today')due++}
+  $('#ovDue').textContent=due?due+' para revisar':'';
+}
+
+/* ---------- progresso ---------- */
+let chartMode='d';
+function renderProgress(){
+  const T=DATA.length,n=DATA.filter(r=>S.read[r.id]).length,t=today();
+  const last7=DATA.filter(r=>S.read[r.id]&&diffDays(S.read[r.id],t)<7).length;
+  const tot=S.prova.ok+S.prova.err;
+  $('#progTiles').innerHTML=[['Total lidos',fmt(n),pct(n,T).toLocaleString('pt-BR')+'% de '+fmt(T)],
+    ...['STF','STJ'].filter(tb=>DATA.some(r=>r.t===tb)).map(tb=>{const a=DATA.filter(r=>r.t===tb);return [tb,fmt(a.filter(r=>S.read[r.id]).length),'de '+fmt(a.length)]}),
+    ['Últimos 7 dias',fmt(last7),'média de '+(Math.round(last7/7*10)/10).toLocaleString('pt-BR')+' por dia'],
+    ['Modo Prova',tot?Math.round(S.prova.ok*100/tot)+'%':'—',fmt(tot)+' itens respondidos']]
+    .map(([k,v,s])=>`<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  const rows=[];['STF','STJ'].forEach(tb=>YEARS.forEach(y=>{const a=DATA.filter(r=>r.t===tb&&r.y===y);if(a.length)rows.push({l:tb+' '+y,rd:a.filter(r=>S.read[r.id]).length,n:a.length,c:'var(--'+tb.toLowerCase()+')'})}));
+  $('#byTrib').innerHTML=rows.map(o=>`<div class="arow"><span>${o.l}</span><div class="bar"><i style="width:${pct(o.rd,o.n)}%;background:${o.c}"></i></div><span class="n">${o.rd}/${o.n}</span></div>`).join('');
+  $('#byArea').innerHTML=RAMOS.map(a=>{const all=DATA.filter(r=>(r.ramos||[r.ramo]).includes(a.r));const rd=all.filter(r=>S.read[r.id]).length;return `<div class="arow"><span>${esc(a.r)}</span><div class="bar"><i style="width:${pct(rd,all.length)}%"></i></div><span class="n">${rd}/${all.length}</span></div>`}).join('');
+  renderChart();
+}
+function renderChart(){
+  const t=today();let b=[];
+  if(chartMode==='d'){for(let i=29;i>=0;i--){const d=addDays(t,-i);b.push({lbl:brShort(d),from:d,to:d,v:0})}}
+  else{const dow=(parseIso(t).getDay()+6)%7;const mon=addDays(t,-dow);for(let i=11;i>=0;i--){const f=addDays(mon,-7*i);b.push({lbl:brShort(f),from:f,to:addDays(f,6),v:0})}}
+  for(const id in S.read){if(!BYID[id])continue;const d=S.read[id];for(const x of b)if(d>=x.from&&d<=x.to){x.v++;break}}
+  const W=640,H=230,L=36,R=10,Tp=14,B=34,max=Math.max(4,...b.map(x=>x.v)),step=Math.ceil(max/4),top=step*4,bw=(W-L-R)/b.length;let g='';
+  for(let k=0;k<=4;k++){const y=Tp+(H-Tp-B)*(1-k/4);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-6}" y="${y+4}" text-anchor="end">${step*k}</text>`}
+  b.forEach((x,i)=>{const h=(H-Tp-B)*x.v/top,X=L+i*bw+bw*.15,Y=H-B-h;
+    g+=`<rect x="${X.toFixed(1)}" y="${Y.toFixed(1)}" width="${(bw*.7).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${i===b.length-1?'var(--accent)':'color-mix(in srgb,var(--accent) 55%,transparent)'}"><title>${x.lbl}: ${x.v} lidos</title></rect>`;
+    if((b.length-1-i)%(chartMode==='d'?5:2)===0)g+=`<text x="${(L+i*bw+bw/2).toFixed(1)}" y="${H-B+16}" text-anchor="middle">${x.lbl}</text>`});
+  $('#chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Julgados lidos por ${chartMode==='d'?'dia':'semana'}">${g}</svg><p class="muted" style="margin:6px 0 0;font-size:12.5px">${fmt(b.reduce((s,x)=>s+x.v,0))} leituras no período.</p>`;
+}
+
+/* ---------- cronograma ---------- */
+function planScope(p){return DATA.filter(r=>inScope(r,p.t,p.y,p.r)&&r.tipo!=='afet').sort((a,b)=>a.t.localeCompare(b.t)||a.sd.localeCompare(b.sd)||a.ord-b.ord)}
+function renderPlan(){
+  const p=S.plan,out=$('#planOut');
+  if(!p){out.innerHTML='<div class="empty">Escolha o início, o número de dias e o recorte, depois clique em <b>Gerar cronograma</b>.</div>';return}
+  $('#pStart').value=p.start;$('#pDays').value=p.days;$('#pT').value=p.t;$('#pY').value=p.y;$('#pR').value=p.r;
+  const list=planScope(p),N=list.length,per=Math.ceil(N/p.days)||1,chunks=[];
+  for(let i=0;i<p.days;i++){const c=list.slice(i*per,(i+1)*per);if(c.length)chunks.push(c)}
+  const read=list.filter(r=>S.read[r.id]).length,t=today(),idx=diffDays(p.start,t)+1,exp=idx<1?0:Math.min(N,per*idx);
+  let status,cls='';
+  if(idx<1)status=`O cronograma começa em ${br(p.start)}.`;
+  else if(read>=N){status='Cronograma concluído.';cls='ahead'}
+  else{const d=read-exp;status=`Dia ${Math.min(idx,chunks.length)} de ${chunks.length}. Meta acumulada até hoje: ${fmt(exp)} julgados. `+(d>=0?`Você está ${fmt(d)} à frente.`:`Faltam ${fmt(-d)} para alcançar a meta.`);cls=d>=0?'ahead':'behind'}
+  out.innerHTML=`<div class="tiles">${[['Início',br(p.start)],['Dias',chunks.length],['Julgados',fmt(N)],['Por dia',fmt(per)],['Lidos',fmt(read)],['Restantes',fmt(N-read)]].map(([k,v])=>`<div class="tile"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
+    <div class="status-line ${cls}">${status}</div>
+    <div class="days">${chunks.map((c,i)=>{const d=addDays(p.start,i),rd=c.filter(r=>S.read[r.id]).length,isT=d===t;
+      return `<div class="day${isT?' today open':''}${rd===c.length?' done':''}" data-i="${i}"><button type="button" class="dh" aria-expanded="${isT}"><span class="dn">Dia ${i+1}</span><span class="dd">${br(d)}${isT?' · hoje':''}</span>
+      <span class="rng">${esc(ishort(c[0]))} a ${esc(ishort(c[c.length-1]))}</span><span class="pg"><span>${rd}/${c.length} lidos</span><span class="bar"><i style="width:${pct(rd,c.length)}%;background:var(--ok)"></i></span></span><span aria-hidden="true">▾</span></button>
+      <div class="db">${isT?dayBody(c):''}</div></div>`}).join('')}</div>`;
+  out._chunks=chunks;
+}
+function dayBody(c){return c.map(r=>`<label class="mini" data-id="${r.id}"><input type="checkbox" ${S.read[r.id]?'checked':''}><span><span class="h">${esc(r.tit)} <small>· ${esc(label(r))} · ${esc(r.proc)}</small></span><p>${esc(studyText(r))}</p></span></label>`).join('')}
+
+/* ---------- flashcards ---------- */
+const FC={deck:[],i:0,ok:0,err:0,wrong:new Set(),mode:'tit'};
+function buildDeck(ids){
+  const t=$('#fcT').value,y=$('#fcY').value,ra=$('#fcR').value,f=$('#fcF').value;FC.mode=$('#fcM').value;
+  FC.deck=ids?ids.slice():DATA.filter(r=>inScope(r,t,y,ra)&&studyText(r)&&(f==='all'||(f==='imp'&&S.imp[r.id])||(f==='naolida'&&!S.read[r.id])||(f==='tese'&&r.tese))).map(r=>r.id);
+  FC.i=0;FC.ok=0;FC.err=0;if(!ids)FC.wrong=new Set();renderFC();
+}
+function renderFC(){
+  const card=$('#fcCard');card.classList.remove('flip');const n=FC.deck.length;
+  $('#fcPos').textContent=n?`Card ${FC.i+1} de ${fmt(n)}`:'Baralho vazio';$('#fcOk').textContent='✓ '+FC.ok;$('#fcErr').textContent='✗ '+FC.err;
+  if(!n){card.style.setProperty('--tc','var(--line)');$('#fcFront').innerHTML='<div class="hint">Nenhum julgado neste recorte. Mude os filtros e clique em Montar baralho.</div>';$('#fcBack').innerHTML='';return}
+  const r=BYID[FC.deck[FC.i]];card.style.setProperty('--tc',`var(--${r.t.toLowerCase()})`);
+  const head=`<div class="kk">${esc(label(r))} · ${esc(r.ramo)}</div><div class="big">${esc(r.tit)}</div><div class="hint">${esc(r.proc)}</div>`;
+  const body=`<div class="kk">${r.tese?(r.t==='STJ'?'Destaque':'Tese fixada'):'Resumo'}</div><div class="tx">${esc(studyText(r))}</div>`;
+  if(FC.mode==='tit'){$('#fcFront').innerHTML=head+'<div class="hint">Qual foi o entendimento? Clique para revelar.</div>';$('#fcBack').innerHTML=body}
+  else{$('#fcFront').innerHTML=body.replace(/<div class="kk">[^<]*<\/div>/,`<div class="kk">${esc(r.t)} · qual é o tema?</div>`)+'<div class="hint">Clique para revelar o julgado.</div>';$('#fcBack').innerHTML=head}
+}
+function fcMove(d){if(!FC.deck.length)return;FC.i=(FC.i+d+FC.deck.length)%FC.deck.length;renderFC()}
+function fcAnswer(ok){if(!FC.deck.length)return;const id=FC.deck[FC.i];if(ok){FC.ok++;FC.wrong.delete(id)}else{FC.err++;FC.wrong.add(id)}
+  if(FC.i===FC.deck.length-1){renderFC();toast(`Fim do baralho: ${FC.ok} acertos, ${FC.err} erros`);return}fcMove(1)}
+
+/* ---------- modo prova ---------- */
+const LB='(?<![\\p{L}\\d])',RB='(?![\\p{L}\\d])';
+const PAIRS=[['estadual','federal'],['estaduais','federais'],['inconstitucional','constitucional'],['inconstitucionais','constitucionais'],['ilícito','lícito'],['ilícita','lícita'],['ilícitas','lícitas'],['ilegítima','legítima'],['ilegítimo','legítimo'],['inválida','válida'],['inválido','válido'],['impossível','possível'],['dispensa','exige'],['prescinde','depende'],['obrigatória','facultativa'],['obrigatório','facultativo'],['absoluta','relativa'],['absoluto','relativo'],['anterior','posterior'],['antes','depois'],['maior','menor'],['superior','inferior'],['mínimo','máximo'],['mínima','máxima'],['sempre','nunca'],['doloso','culposo'],['dolosa','culposa'],['incondicionada','condicionada'],['pública','privada'],['credor','devedor'],['devida','indevida'],['devido','indevido'],['cabível','incabível'],['admissível','inadmissível'],['suficiente','insuficiente'],['competente','incompetente'],['interrompe','suspende'],['interrupção','suspensão'],['decadência','prescrição'],['decadencial','prescricional'],['procedente','improcedente'],['privativa','concorrente'],['União','estados'],['municípios','estados'],['Justiça Comum','Justiça do Trabalho'],['Ministério Público','Defensoria Pública'],['legal','ilegal'],['ativo','passivo'],['vinculante','facultativo']];
+const VERBS='é|são|cabe|cabem|incide|incidem|configura|configuram|constitui|constituem|enseja|admite|admitem|depende|exige|caracteriza|pode|podem|compete|autoriza|basta|comporta|ofende|viola|violam|interrompe|suspende|abrange|alcança|implica|impede|afasta|obsta|gera|tem|têm|há|prevalece|subsiste|aplica-se|aplicam-se|sujeita-se|deve|devem|prejudica|exclui|torna|está|estão|usurpa|invade|afronta|configura-se|reconhece-se';
+const capFirst=(o,r)=>o&&o[0]!==o[0].toLowerCase()&&r?r[0].toUpperCase()+r.slice(1):r;
+function mutations(text){
+  const out=[];let m;
+  for(const [a,b] of PAIRS)for(const [x,y] of [[a,b],[b,a]]){const re=new RegExp(LB+'('+x+')'+RB,'gu');while((m=re.exec(text)))out.push({s:m.index,e:m.index+m[0].length,o:m[0],r:capFirst(m[0],y),k:'troca'})}
+  const reNo=new RegExp(LB+'(não)\\s+(?=\\p{L})','giu');while((m=reNo.exec(text)))out.push({s:m.index,e:m.index+m[0].length,o:m[0],r:'',k:'tirou'});
+  const reV=new RegExp('(?<!não\\s)'+LB+'('+VERBS+')'+RB,'giu');let added=0;
+  while((m=reV.exec(text))&&added<2){if(/^\s*não/i.test(text.slice(m.index+m[0].length)))continue;out.push({s:m.index,e:m.index,o:'',r:(m.index===0?'Não ':'não '),k:'pôs',fix:m.index===0});added++}
+  const reN=new RegExp(LB+'(\\d{1,3})(?=\\s+(dias|anos|meses|horas|vezes|salários))','giu');
+  while((m=reN.exec(text))){const n=+m[1];const alt=[n*2,Math.max(1,Math.round(n/2)),n+5].filter(v=>v!==n);out.push({s:m.index,e:m.index+m[0].length,o:m[0],r:String(alt[Math.floor(Math.random()*alt.length)]),k:'prazo'})}
+  return out;
+}
+function applyMut(text,c){let after=text.slice(c.e);if(c.fix&&after)after=after[0].toLowerCase()+after.slice(1);if(c.k==='tirou'&&c.s===0&&after)after=after[0].toUpperCase()+after.slice(1);return text.slice(0,c.s)+c.r+after}
+const PV={items:[],i:0,ok:0,err:0,answered:null,errs:[]};
+function pvPool(){const t=$('#pvT').value,y=$('#pvY').value,ra=$('#pvR').value,f=$('#pvF').value;
+  return DATA.filter(r=>inScope(r,t,y,ra)&&studyText(r)&&(f==='all'||(f==='imp'&&S.imp[r.id])||(f==='lida'&&S.read[r.id])||(f==='errei'&&S.prova.wrong[r.id])))}
+function pvBuild(ids){
+  let pool=ids?ids.map(id=>BYID[id]):pvPool();
+  if(!pool.length){toast('Nenhum julgado neste recorte');PV.items=[];renderProva();return}
+  pool=pool.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  const n=ids?pool.length:Math.min(+$('#pvN').value,pool.length);
+  PV.items=pool.slice(0,n).map(r=>{const base=studyText(r);const ms=mutations(base);
+    if(ms.length&&Math.random()<0.55){const c=ms[Math.floor(Math.random()*ms.length)];return {id:r.id,certo:false,base,txt:applyMut(base,c),c}}
+    return {id:r.id,certo:true,base,txt:base}});
+  PV.i=0;PV.ok=0;PV.err=0;PV.answered=null;PV.errs=[];renderProva();
+}
+function pvLead(r){return `Segundo o ${r.t} (${r.org}${r.y?', '+r.y:''}):`}
+function markOrig(text,c){return esc(text.slice(0,c.s))+(c.o?`<mark class="o">${esc(c.o.trim())}</mark>${c.o.endsWith(' ')?' ':''}`:'<mark class="o">‸</mark>')+esc(text.slice(c.e))}
+function markMut(txt,c){const s=c.s,len=c.r.length;return esc(txt.slice(0,s))+(len?`<mark class="x">${esc(c.r.trim())}</mark>${c.r.endsWith(' ')?' ':''}`:'<mark class="x">‸</mark>')+esc(txt.slice(s+len))}
+function renderProva(){
+  const tot=S.prova.ok+S.prova.err;
+  $('#pvTiles').innerHTML=[['Nesta rodada',PV.items.length?`${PV.ok+PV.err}/${PV.items.length}`:'—',''],['Acertos',fmt(PV.ok),'good'],['Erros',fmt(PV.err),'late'],['Aproveitamento geral',tot?Math.round(S.prova.ok*100/tot)+'%':'—',''],['Itens respondidos',fmt(tot),'']].map(([k,v,c])=>`<div class="tile ${c}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  const box=$('#pvBox');
+  if(!PV.items.length){box.innerHTML='<div class="empty" style="border:0">Escolha o recorte e clique em <b>Começar rodada</b>.</div>';return}
+  if(PV.i>=PV.items.length){
+    box.innerHTML=`<div class="pv-q"><h3 style="font-size:24px">Rodada concluída: ${PV.ok} de ${PV.items.length}</h3><p class="muted" style="margin:0">Aproveitamento de ${Math.round(PV.ok*100/PV.items.length)}%. ${PV.errs.length?'Os itens errados já estão como pendentes na revisão espaçada.':'Nenhum erro nesta rodada.'}</p>
+      ${PV.errs.length?`<div class="errlist">${PV.errs.map(id=>{const r=BYID[id];return `<div><b>${esc(r.tit)}</b> (${esc(label(r))}): ${esc(studyText(r))}</div>`}).join('')}</div>`:''}
+      <div class="row"><button class="btn primary" type="button" id="pvAgain">Nova rodada</button>${PV.errs.length?'<button class="btn" type="button" id="pvRedo">Refazer só os errados</button>':''}</div></div>`;
+    $('#pvAgain').onclick=()=>pvBuild();if($('#pvRedo'))$('#pvRedo').onclick=()=>pvBuild(PV.errs.slice());return;
+  }
+  const it=PV.items[PV.i],r=BYID[it.id];
+  let html=`<div class="pv-q"><div class="row" style="justify-content:space-between"><span class="lead">${esc(pvLead(r))}</span><span class="muted">Item ${PV.i+1} de ${PV.items.length}</span></div><p class="stmt">${esc(it.txt)}</p>`;
+  if(PV.answered===null)html+=`<div class="ce"><button type="button" class="c" data-ans="1">C · Certo</button><button type="button" class="e" data-ans="0">E · Errado</button></div>`;
+  else{const hit=PV.answered===it.certo;
+    html+=`<div class="verdict ${hit?'good':'bad'}">${hit?'Você acertou.':'Você errou.'} <span>O item está <b>${it.certo?'CERTO':'ERRADO'}</b>: ${it.certo?'é o texto oficial do informativo.':it.c.k==='tirou'?'a questão retirou o “não” do texto oficial.':it.c.k==='pôs'?'a questão acrescentou um “não” que o texto oficial não tem.':`a questão trocou “${esc(it.c.o)}” por “${esc(it.c.r)}”.`}</span></div>
+      <div class="cmp">${it.certo?'':`<div><div class="lbl">Na questão</div><p>${markMut(it.txt,it.c)}</p></div>`}<div><div class="lbl">${esc(r.tit)} · ${esc(r.proc)} · ${esc(label(r))}</div><p>${it.certo?esc(it.base):markOrig(it.base,it.c)}</p></div></div>
+      <div class="row"><button class="btn primary" type="button" id="pvNext">${PV.i+1<PV.items.length?'Próximo item':'Ver resultado'} <span class="kbd" style="color:inherit">Enter</span></button>${r.u?`<a class="lnk" href="${esc(r.u)}" target="_blank" rel="noopener">Fonte oficial ↗</a>`:''}</div>`}
+  box.innerHTML=html+'</div>';
+  box.querySelectorAll('[data-ans]').forEach(b=>b.onclick=()=>pvAnswer(b.dataset.ans==='1'));
+  if($('#pvNext')){$('#pvNext').onclick=pvNext;$('#pvNext').focus()}
+}
+function pvAnswer(saidCerto){if(PV.answered!==null||PV.i>=PV.items.length)return;const it=PV.items[PV.i];PV.answered=saidCerto;
+  if(saidCerto===it.certo){PV.ok++;S.prova.ok++}else{PV.err++;S.prova.err++;PV.errs.push(it.id);S.prova.wrong[it.id]=(S.prova.wrong[it.id]||0)+1;
+    const c=sm2(S.sr[it.id],1);if(S.sr[it.id]&&S.sr[it.id].f)c.f=S.sr[it.id].f;c.due=today();S.sr[it.id]=c}
+  save();refreshHeader();renderProva()}
+function pvNext(){if(PV.answered===null)return;PV.i++;PV.answered=null;renderProva()}
+
+/* ---------- revisão espaçada ---------- */
+function srScope(){return DATA.filter(r=>inScope(r,$('#srT').value,$('#srY').value,$('#srR').value)&&studyText(r)).sort((a,b)=>a.t.localeCompare(b.t)||a.sd.localeCompare(b.sd)||a.ord-b.ord)}
+function renderSR(){
+  const scope=srScope(),cnt={none:0,new:0,today:0,late:0,learn:0,master:0};scope.forEach(r=>cnt[srState(r.id)]++);
+  const lr=Object.keys(S.srLog).sort().pop();
+  $('#srTiles').innerHTML=[['Sequência',srStreak()+' dia'+(srStreak()===1?'':'s'),''],['Última revisão',lr?br(lr):'—',''],['Atrasados',fmt(cnt.late),'late'],['Para hoje',fmt(cnt.today),'today'],['Aprendidos',fmt(cnt.learn+cnt.master+cnt.new),'good'],['Não vistos',fmt(cnt.none),''],['Total',fmt(scope.length),'']].map(([k,v,c])=>`<div class="tile ${c}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  const cls={none:'',new:'new',today:'today',late:'late',learn:'learn',master:'master'};
+  $('#cells').innerHTML=scope.map(r=>`<button type="button" class="cell ${cls[srState(r.id)]}" data-id="${r.id}" title="${esc(ishort(r)+' · '+r.tit)}" aria-label="${esc(ishort(r)+' · '+r.tit)}"></button>`).join('');
+  const newToday=Object.values(S.sr).filter(c=>c.f===today()).length,left=Math.max(0,S.newPerDay-newToday);
+  $('#srN').value=S.newPerDay;$('#srNew').textContent=`＋ Estudar novos (${Math.min(left,cnt.none)})`;$('#srNew').disabled=!Math.min(left,cnt.none);
+  $('#srDue').textContent=`⚡ Estudar pendentes (${cnt.today+cnt.late})`;$('#srDue').disabled=!(cnt.today+cnt.late);
+}
+function peek(id){const r=BYID[id],c=S.sr[id];
+  $('#peek').innerHTML=`<div class="card" data-t="${r.t}" style="margin-top:4px"><div class="top"><span class="num">${esc(label(r))}</span>${c?`<span class="chip">próxima: ${br(c.due)}</span><span class="chip">intervalo: ${c.i} d</span>`:''}</div><h3 class="tit">${esc(r.tit)}</h3><div class="proc">${relLine(r)}</div><p class="res">${esc(studyText(r))}</p><div class="acts"><button type="button" class="btn sm" data-study="${r.id}">Estudar este agora</button></div></div>`}
+const Q={list:[],i:0,shown:false,done:0};
+function startStudy(ids,title){if(!ids.length){toast('Nada para estudar neste recorte');return}Q.list=ids.slice();Q.i=0;Q.shown=false;Q.done=0;$('#stTitle').textContent=title;$('#studyOv').classList.add('on');renderStudy()}
+function ivLabel(n){return n<30?n+' d':n<365?Math.round(n/30)+' m':(Math.round(n/36.5)/10).toLocaleString('pt-BR')+' a'}
+function renderStudy(){
+  if(Q.i>=Q.list.length){$('#stPos').textContent='';$('#stBar').style.width='100%';
+    $('#stBody').innerHTML=`<div style="text-align:center;padding:20px 0"><h3 style="font-size:24px;margin-bottom:8px">Sessão concluída</h3><p class="muted">${Q.done} avaliações registradas. As próximas revisões já estão agendadas.</p><button class="btn primary" type="button" id="stEnd">Fechar</button></div>`;$('#stEnd').onclick=closeStudy;$('#stEnd').focus();return}
+  const r=BYID[Q.list[Q.i]],c=S.sr[r.id];$('#stPos').textContent=`${Q.i+1} de ${Q.list.length}`;$('#stBar').style.width=pct(Q.i,Q.list.length)+'%';
+  const body=$('#stBody');body.style.setProperty('--tc',`var(--${r.t.toLowerCase()})`);
+  body.innerHTML=`<div class="front"><span class="muted" style="font-size:12.5px">${c?'Revisão · intervalo atual '+c.i+' d':'Novo'} · ${esc(label(r))} · ${esc(r.ramo)}</span><span class="big">${esc(r.tit)}</span><span class="muted">${esc(r.proc)}. Recorde o entendimento antes de revelar.</span></div>
+    <div class="ans ${Q.shown?'':'hid'}" aria-hidden="${!Q.shown}">${esc(studyText(r))}</div>
+    ${Q.shown?`<div class="grades">${GRADES.map((g,q)=>`<button type="button" class="g${q}" data-q="${q}">${g[1]} ${g[0]}<small>${q<3?'repetir amanhã':'em '+ivLabel(sm2(c,q).i)} · tecla ${q+1}</small></button>`).join('')}</div>`:`<button type="button" class="btn primary" id="stShow" style="justify-self:center">Mostrar entendimento <span class="kbd" style="color:inherit">espaço</span></button>`}`;
+  if(!Q.shown){$('#stShow').onclick=()=>{Q.shown=true;renderStudy()};$('#stShow').focus()}else body.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>grade(+b.dataset.q));
+}
+function grade(q){const id=Q.list[Q.i],prev=S.sr[id],c=sm2(prev,q);if(prev&&prev.f)c.f=prev.f;S.sr[id]=c;const t=today();S.srLog[t]=(S.srLog[t]||0)+1;if(q>=3&&!S.read[id])S.read[id]=t;save();Q.done++;
+  if(q<3&&Q.list.indexOf(id,Q.i+1)===-1)Q.list.push(id);Q.i++;Q.shown=false;renderStudy()}
+function closeStudy(){$('#studyOv').classList.remove('on');refreshAll()}
+
+/* ---------- backup ---------- */
+let downloads=null;
+function renderBackup(){$('#bkOut').value=JSON.stringify({app:'informativos-stf-stj',exportado:new Date().toISOString(),estado:S})}
+function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){toast('Arquivo inválido: não é um JSON');return}
+  const st=o&&o.estado?o.estado:o;if(!st||typeof st!=='object'||!('read' in st)){toast('Esse arquivo não parece um backup deste site');return}
+  ask(`Restaurar este backup? ${Object.keys(st.read||{}).length} leituras e ${Object.keys(st.sr||{}).length} cartões de revisão vão substituir o progresso atual.`,{okLabel:'Restaurar'}).then(ok=>{if(!ok)return;S=migrate(st);save();refreshAll();toast('Backup restaurado')})}
+
+/* ---------- navegação ---------- */
+const VIEWS=['julgados','progresso','cronograma','flashcards','prova','revisao','backup'];let current='julgados';
+function route(){let v=location.hash.replace('#','');if(!VIEWS.includes(v))v='julgados';VIEWS.forEach(x=>$('#v-'+x).classList.toggle('on',x===v));$$('nav.views a').forEach(a=>a.setAttribute('aria-current',a.dataset.v===v?'page':'false'));renderView(v)}
+function renderView(v){current=v;if(v==='julgados')renderList(true);else if(v==='progresso')renderProgress();else if(v==='cronograma')renderPlan();else if(v==='flashcards'){if(!FC.deck.length)buildDeck();else renderFC()}else if(v==='prova')renderProva();else if(v==='revisao')renderSR();else if(v==='backup')renderBackup()}
+function refreshAll(){refreshHeader();renderView(current)}
+
+function bind(){
+  let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{F.q=e.target.value;renderList(true)},180)});
+  $('#segT').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;F.t=b.dataset.t;$$('#segT button').forEach(x=>x.setAttribute('aria-pressed',x===b));F.inf='all';fillInf();renderList(true)});
+  [['#fI','inf'],['#fY','y'],['#fR','ramo'],['#fG','org'],['#fP','p'],['#fS','s'],['#fO','o']].forEach(([s,k])=>$(s).onchange=e=>{F[k]=e.target.value;renderList(true)});
+  $('#list').addEventListener('click',onListClick);
+  $('#list').addEventListener('toggle',e=>{const d=e.target;if(d.matches&&d.matches('details.more')&&d.open)fillFull(d)},true);
+  $('#moreBtn').onclick=()=>renderList(false);
+  if('IntersectionObserver' in window)new IntersectionObserver(es=>{if(es[0].isIntersecting&&current==='julgados'&&shown<LIST.length)renderList(false)},{rootMargin:'400px'}).observe($('#moreBtn'));
+  $('#markAll').onclick=async()=>{const todo=LIST.filter(r=>!S.read[r.id]);if(!todo.length){toast('Todos os filtrados já estão lidos');return}if(todo.length>10&&!(await ask(`Marcar ${fmt(todo.length)} julgados como lidos hoje?`,{okLabel:'Marcar'})))return;todo.forEach(r=>setRead(r.id,true));save();renderList(true);refreshHeader()};
+  $('#clearAll').onclick=async()=>{const todo=LIST.filter(r=>S.read[r.id]);if(!todo.length){toast('Nenhum filtrado está marcado');return}if(!(await ask(`Desmarcar a leitura de ${fmt(todo.length)} julgados?`,{okLabel:'Desmarcar',danger:true})))return;todo.forEach(r=>setRead(r.id,false));save();renderList(true);refreshHeader()};
+  $('#segChart').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;chartMode=b.dataset.c;$$('#segChart button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderChart()});
+  $('#pSave').onclick=()=>{S.plan={start:$('#pStart').value||today(),days:Math.max(1,Math.min(730,parseInt($('#pDays').value,10)||30)),t:$('#pT').value,y:$('#pY').value,r:$('#pR').value};save();renderPlan();toast('Cronograma gerado')};
+  $('#planOut').addEventListener('click',e=>{const h=e.target.closest('.dh');if(!h)return;const day=h.parentElement,open=!day.classList.contains('open');day.classList.toggle('open',open);h.setAttribute('aria-expanded',open);const body=day.querySelector('.db');if(open&&!body.innerHTML)body.innerHTML=dayBody($('#planOut')._chunks[+day.dataset.i])});
+  $('#planOut').addEventListener('change',e=>{const lab=e.target.closest('.mini');if(!lab)return;setRead(lab.dataset.id,e.target.checked);save();refreshHeader();const day=lab.closest('.day'),c=$('#planOut')._chunks[+day.dataset.i],rd=c.filter(r=>S.read[r.id]).length;day.querySelector('.pg span').textContent=`${rd}/${c.length} lidos`;day.querySelector('.pg i').style.width=pct(rd,c.length)+'%';day.classList.toggle('done',rd===c.length)});
+  $('#fcBuild').onclick=()=>buildDeck();$('#fcCard').onclick=()=>{if(FC.deck.length)$('#fcCard').classList.toggle('flip')};
+  $('#fcPrev').onclick=()=>fcMove(-1);$('#fcNext').onclick=()=>fcMove(1);$('#fcYes').onclick=()=>fcAnswer(true);$('#fcNo').onclick=()=>fcAnswer(false);
+  $('#fcShuffle').onclick=()=>{for(let i=FC.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[FC.deck[i],FC.deck[j]]=[FC.deck[j],FC.deck[i]]}FC.i=0;renderFC();toast('Baralho embaralhado')};
+  $('#fcRestart').onclick=()=>{FC.i=0;FC.ok=0;FC.err=0;renderFC()};
+  $('#fcErrOnly').onclick=()=>{if(!FC.wrong.size){toast('Nenhum erro registrado neste baralho');return}buildDeck([...FC.wrong])};
+  $('#pvStart').onclick=()=>pvBuild();
+  ['#srT','#srY','#srR'].forEach(s=>$(s).onchange=renderSR);
+  $('#srN').onchange=e=>{S.newPerDay=Math.max(1,Math.min(200,parseInt(e.target.value,10)||20));save();renderSR()};
+  $('#cells').addEventListener('click',e=>{const b=e.target.closest('.cell');if(b)peek(b.dataset.id)});
+  $('#peek').addEventListener('click',e=>{const b=e.target.closest('[data-study]');if(b)startStudy([b.dataset.study],'Revisão avulsa')});
+  $('#srDue').onclick=()=>startStudy(srScope().filter(r=>{const s=srState(r.id);return s==='late'||s==='today'}).sort((a,b)=>S.sr[a.id].due.localeCompare(S.sr[b.id].due)).map(r=>r.id),'Pendentes');
+  $('#srNew').onclick=()=>{const left=Math.max(0,S.newPerDay-Object.values(S.sr).filter(c=>c.f===today()).length);startStudy(srScope().filter(r=>!S.sr[r.id]).slice(0,left).map(r=>r.id),'Novos')};
+  $('#srReset').onclick=async()=>{if(!(await ask('Resetar a revisão espaçada? Todas as datas e notas de revisão serão apagadas. As leituras marcadas continuam.',{okLabel:'Resetar',danger:true})))return;S.sr={};S.srLog={};save();refreshAll();toast('Revisão resetada')};
+  $('#stClose').onclick=closeStudy;
+  $('#bkCopy').onclick=()=>{renderBackup();copyText($('#bkOut').value)};
+  $('#bkSave').onclick=async()=>{renderBackup();try{await downloads.save({filename:`backup-informativos-${today()}.json`,data:$('#bkOut').value});toast('Backup salvo')}catch(e){toast('Download cancelado. Use “Copiar backup”.')}};
+  $('#bkFile').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(restoreFrom);e.target.value=''};
+  $('#bkRestore').onclick=()=>{const t=$('#bkIn').value.trim();if(!t){toast('Cole o conteúdo do backup primeiro');return}restoreFrom(t)};
+  $('#bkWipe').onclick=async()=>{if(!(await ask('Apagar todo o progresso? Leituras, destaques, revisões, Modo Prova e cronograma serão removidos.',{okLabel:'Apagar tudo',danger:true,typed:true})))return;S=blank();save();refreshAll();toast('Progresso apagado')};
+  document.addEventListener('keydown',e=>{
+    if(e.target.matches('input,textarea,select'))return;
+    if($('#askOv').classList.contains('on')){if(e.key==='Escape')$('#askNo').click();return}
+    if($('#studyOv').classList.contains('on')){if(e.key==='Escape'){closeStudy();return}
+      if(!Q.shown&&(e.key===' '||e.key==='Enter')&&Q.i<Q.list.length){e.preventDefault();Q.shown=true;renderStudy();return}
+      if(Q.shown&&/^[1-6]$/.test(e.key))grade(+e.key-1);return}
+    if(current==='prova'){const k=e.key.toLowerCase();if(k==='c')pvAnswer(true);else if(k==='e')pvAnswer(false);else if(e.key==='Enter'&&PV.answered!==null&&document.activeElement.id!=='pvNext'){e.preventDefault();pvNext()}return}
+    if(current==='flashcards'){if(e.key===' '){e.preventDefault();$('#fcCard').click()}else if(e.key==='ArrowRight')fcMove(1);else if(e.key==='ArrowLeft')fcMove(-1);else if(e.key==='1')fcAnswer(false);else if(e.key==='2')fcAnswer(true)}
+  });
+  window.addEventListener('hashchange',route);
+}
+
+function renderNews(){
+  const last={};DATA.forEach(r=>{if(!r.ext&&(!last[r.t]||r.inf>last[r.t]))last[r.t]=r.inf});
+  const chips=[];Object.entries(last).forEach(([t,n])=>{for(const k of [n,n-1]){const c=DATA.filter(r=>r.t===t&&r.inf===k).length;if(c)chips.push({t,k,c})}});
+  $('#news').innerHTML=chips.map(c=>`<button type="button" data-k="${c.t}-${c.k}"><span class="tag" data-t="${c.t}">${c.t}</span><b>Informativo ${c.k}</b> ${c.c} julgados</button>`).join('');
+  $('#news').onclick=e=>{const b=e.target.closest('button');if(!b)return;F.t='all';$$('#segT button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t==='all'));fillInf();F.inf=b.dataset.k;$('#fI').value=F.inf;renderList(true)};
+}
+
+async function start(){
+  bind();
+  try{
+    MANIFEST=await (await fetch('data/manifest.json')).json();
+    const parts=await Promise.all(MANIFEST.files.map(f=>fetch('data/meta-'+f.k+'.json').then(x=>{if(!x.ok)throw new Error(f.k);return x.json()})));
+    DATA=parts.flat();
+  }catch(e){$('#loading').textContent='Não foi possível carregar os informativos. Recarregue a página.';return}
+  const ordC={},rc={},ys=new Set(),os=new Set();
+  DATA.forEach(r=>{BYID[r.id]=r;r.sd=r.sd||r.di||r.dj||'';const k=ikey(r);ordC[k]=(ordC[k]||0)+1;r.ord=ordC[k];
+    r.k=norm([r.tit,r.proc,(r.ramos||[r.ramo]).join(' '),r.mat,r.tese,r.res,r.rel,r.red,r.rg?'tema '+r.rg:'',r.rep||'',ishort(r)].join(' ')).replace(/(\d)\.(\d)/g,'$1$2');
+    (r.ramos||[r.ramo]).forEach(x=>rc[x]=(rc[x]||0)+1);ys.add(r.y);r.org.split(' e ').forEach(o=>os.add(o))});
+  RAMOS=Object.entries(rc).map(([r,n])=>({r,n})).sort((a,b)=>b.n-a.n);YEARS=[...ys].sort((a,b)=>b-a);ORGS=[...os].sort();
+  fillCommon();
+  const infs={};DATA.forEach(r=>{if(r.ext)return;infs[r.t]=infs[r.t]||[];infs[r.t].push(r.inf)});
+  $('#baseInfo').textContent=fmt(DATA.length)+' julgados · '+Object.entries(infs).map(([t,a])=>`${t} ${Math.min(...a)} a ${Math.max(...a)}`).join(' · ');
+  $('#fontes').textContent='Fontes: '+Object.values(MANIFEST.fontes||{}).join('; ')+'. Textos oficiais dos tribunais, reproduzidos com citação da fonte. Base atualizada em '+br(MANIFEST.atualizado)+'.';
+  $('#pStart').value=today();renderNews();$('#loading').remove();refreshHeader();route();
+  if(window.claude&&typeof window.claude.use==='function')window.claude.use('downloads').then(d=>{if(d){downloads=d;$('#bkSave').hidden=false}}).catch(()=>{});
+}
+start();
+})();
+</script>
+</body>
+</html>
