@@ -42,6 +42,7 @@
   color-scheme: dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none !important}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body)}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -255,6 +256,7 @@ mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:
     </div>
     <nav class="views" aria-label="Seções">
       <a href="#julgados" data-v="julgados"><span class="ic">≡</span>Julgados</a>
+      <a href="#temas" data-v="temas"><span class="ic">§</span>Temas RG e repetitivos</a>
       <a href="#progresso" data-v="progresso"><span class="ic">◎</span>Progresso</a>
       <a href="#cronograma" data-v="cronograma"><span class="ic">▦</span>Cronograma</a>
       <a href="#flashcards" data-v="flashcards"><span class="ic">◈</span>Flashcards</a>
@@ -289,6 +291,7 @@ mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:
         <label class="f" for="fS">Situação<select id="fS"><option value="all">Todos</option><option value="naolida">Não lidos</option><option value="lida">Lidos</option><option value="imp">★ Importantes</option></select></label>
         <label class="f" for="fO">Ordem<select id="fO"><option value="rec">Mais recentes</option><option value="ant">Mais antigos</option></select></label>
       </div>
+      <div class="meta-row" id="tkBar" hidden><span id="tkTxt"></span><button class="btn sm" id="tkClear" type="button">✕ Limpar filtro do tema</button></div>
       <div class="meta-row">
         <span><b id="cnt">0</b> julgados · <b id="cntRead">0</b> lidos neste filtro</span>
         <span class="row">
@@ -298,6 +301,28 @@ mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:
       </div>
       <div class="list" id="list"></div>
       <div class="more-btn"><button class="btn" id="moreBtn" type="button">Mostrar mais</button></div>
+    </section>
+
+    <section class="view" id="v-temas" aria-labelledby="h-tem">
+      <div class="vhead"><div><h2 id="h-tem">Temas de repercussão geral e repetitivos</h2>
+        <p>Todos os temas de repercussão geral do STF e dos recursos repetitivos do STJ, com a tese fixada, a situação e os julgados do informativo que tratam de cada um. Busque por palavra ou número (ex.: <span class="kbd">tema 1194</span>, <span class="kbd">confissão espontânea</span>).</p></div></div>
+      <div class="toolbar">
+        <div class="grow"><label class="sr-only" for="tq">Pesquisar temas</label><input type="search" id="tq" placeholder="Digite para pesquisar temas" autocomplete="off"></div>
+        <div class="seg" role="group" aria-label="Tribunal" id="segTT">
+          <button type="button" data-t="all" aria-pressed="true">Todos</button>
+          <button type="button" data-t="STF" aria-pressed="false">STF (RG)</button>
+          <button type="button" data-t="STJ" aria-pressed="false">STJ (repetitivos)</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="f" for="tS">Situação<select id="tS"><option value="all">Todas</option><option value="julgado" selected>Com tese (mérito julgado)</option><option value="pendente">Pendentes de julgamento</option><option value="semrg">Sem repercussão geral (STF)</option><option value="cancelado">Cancelados</option></select></label>
+        <label class="f" for="tR">Ramo<select id="tR"></select></label>
+        <label class="f" for="tL">Leitura<select id="tL"><option value="all">Todos</option><option value="naolida">Não lidos</option><option value="lida">Lidos</option><option value="imp">★ Importantes</option></select></label>
+        <label class="f" for="tO">Ordem<select id="tO"><option value="desc">Número: maior primeiro</option><option value="asc">Número: menor primeiro</option></select></label>
+      </div>
+      <div class="meta-row"><span><b id="tcnt">0</b> temas · <b id="tcntRead">0</b> lidos neste filtro</span></div>
+      <div class="list" id="tlist"><div class="loading">Carregando temas…</div></div>
+      <div class="more-btn"><button class="btn" id="tmore" type="button">Mostrar mais</button></div>
     </section>
 
     <section class="view" id="v-progresso" aria-labelledby="h-prog">
@@ -335,6 +360,7 @@ mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:
     <section class="view" id="v-flashcards" aria-labelledby="h-fc">
       <div class="vhead"><div><h2 id="h-fc">Flashcards</h2><p>Clique no cartão (ou tecle <span class="kbd">espaço</span>) para revelar. Setas navegam; <span class="kbd">1</span> errei, <span class="kbd">2</span> acertei.</p></div></div>
       <div class="toolbar">
+        <label class="f" for="fcB">Estudar<select id="fcB"><option value="jul">Julgados dos informativos</option><option value="tem">Teses dos temas (RG e repetitivos)</option><option value="all">Julgados e teses</option></select></label>
         <label class="f" for="fcT">Tribunal<select id="fcT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
         <label class="f" for="fcY">Ano<select id="fcY"></select></label>
         <label class="f" for="fcR">Ramo<select id="fcR"></select></label>
@@ -362,6 +388,7 @@ mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:
     <section class="view" id="v-prova" aria-labelledby="h-pv">
       <div class="vhead"><div><h2 id="h-pv">Modo Prova · Certo ou Errado</h2><p>Cada item traz a tese ou o resumo oficial do julgado, ou uma versão com uma alteração no estilo Cespe. Responda com <span class="kbd">C</span> ou <span class="kbd">E</span>; <span class="kbd">Enter</span> passa para o próximo. Os itens errados entram na revisão espaçada.</p></div></div>
       <div class="toolbar">
+        <label class="f" for="pvB">Estudar<select id="pvB"><option value="jul">Julgados dos informativos</option><option value="tem">Teses dos temas (RG e repetitivos)</option><option value="all">Julgados e teses</option></select></label>
         <label class="f" for="pvT">Tribunal<select id="pvT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
         <label class="f" for="pvY">Ano<select id="pvY"></select></label>
         <label class="f" for="pvR">Ramo<select id="pvR"></select></label>
@@ -377,6 +404,7 @@ mark.x{background:color-mix(in srgb,var(--bad) 25%,transparent);text-decoration:
       <div class="vhead"><div><h2 id="h-rev">Revisão espaçada</h2><p>Algoritmo SM-2: cada julgado volta no intervalo certo conforme a sua nota. Cada quadrado da grade é um julgado; clique para ver.</p></div></div>
       <div class="tiles" id="srTiles"></div>
       <div class="toolbar">
+        <label class="f" for="srB">Estudar<select id="srB"><option value="jul">Julgados dos informativos</option><option value="tem">Teses dos temas (RG e repetitivos)</option><option value="all">Julgados e teses</option></select></label>
         <label class="f" for="srT">Tribunal<select id="srT"><option value="all">Todos</option><option value="STF">STF</option><option value="STJ">STJ</option></select></label>
         <label class="f" for="srY">Ano<select id="srY"></select></label>
         <label class="f" for="srR">Ramo<select id="srR"></select></label>
@@ -488,9 +516,24 @@ function ask(msg,{okLabel='Confirmar',danger=false,typed=false}={}){
 /* ---------- dados ---------- */
 let DATA=[],BYID={},MANIFEST=null,RAMOS=[],YEARS=[],ORGS=[];
 const TXT={},TXT_LOADING={};
-const label=r=>r.ext?r.t+' · Edição Extraordinária '+r.ext:r.t+' · Informativo '+r.inf;
-const ikey=r=>r.t+'-'+(r.ext?'EX'+r.ext:r.inf);
-const ishort=r=>r.ext?r.t+' Ext. '+r.ext:r.t+' '+r.inf;
+const temaName=r=>r.t==='STF'?'Tema '+r.n+' (RG)':'Tema '+r.n+' (repetitivo)';
+const label=r=>r.kind==='tema'?r.t+' · '+temaName(r):r.ext?r.t+' · Edição Extraordinária '+r.ext:r.t+' · Informativo '+r.inf;
+const ikey=r=>r.kind==='tema'?'T'+r.t+'-'+r.n:r.t+'-'+(r.ext?'EX'+r.ext:r.inf);
+const ishort=r=>r.kind==='tema'?r.t+' Tema '+r.n:r.ext?r.t+' Ext. '+r.ext:r.t+' '+r.inf;
+/* temas: carregados sob demanda */
+let TEMAS=[],TEMAS_P=null;const JUL_BY_TEMA={};
+const temaKeyOfJul=r=>{if(r.t==='STF'&&r.rg)return 'STF-'+String(r.rg).replace(/\D/g,'');const m=r.t==='STJ'&&r.rep&&r.rep.match(/Tema\s+([\d.]+)/);return m?'STJ-'+m[1].replace(/\D/g,''):''};
+function ensureTemas(){
+  if(TEMAS_P)return TEMAS_P;
+  TEMAS_P=fetch('data/temas.json').then(x=>{if(!x.ok)throw new Error('temas');return x.json()}).then(list=>{
+    TEMAS=list;TEMAS.forEach(t=>{t.sd=t.d||'';t.ord=t.n;t.inf=0;t.ext=0;t.res='';BYID[t.id]=t;
+      t.k=norm(['tema '+t.n,t.tit,t.q,t.tese,t.ramos.join(' '),t.rel,t.proc,t.org,t.sit].join(' ')).replace(/(\d)\.(\d)/g,'$1$2')});
+    const rc={};TEMAS.forEach(t=>t.ramos.forEach(x=>rc[x]=(rc[x]||0)+1));
+    fillSel($('#tR'),Object.entries(rc).sort((a,b)=>b[1]-a[1]).map(([r,n])=>[r,r+' ('+n+')']),'Todos os ramos');
+    return TEMAS}).catch(e=>{TEMAS_P=null;throw e});
+  return TEMAS_P;
+}
+function basePool(b){const T=TEMAS.filter(t=>t.tese&&t.sc!=='cancelado');return b==='tem'?T:b==='all'?DATA.concat(T):DATA}
 const studyText=r=>r.tese||r.res;
 async function loadTxt(r){
   const k=r.t+'-'+r.y;
@@ -537,7 +580,7 @@ function fillInf(){
 }
 
 /* ---------- lista ---------- */
-const F={q:'',t:'all',inf:'all',y:'all',ramo:'all',org:'all',p:'all',s:'all',o:'rec'};
+const F={q:'',t:'all',inf:'all',y:'all',ramo:'all',org:'all',p:'all',s:'all',o:'rec',tk:''};
 let LIST=[],shown=0;const PAGE=40;
 function hlRegex(){
   const terms=F.q.trim().split(/\s+/).filter(w=>w.length>2&&!/^(stf|stj)$/i.test(w));
@@ -551,6 +594,7 @@ function filterList(){
   let out=DATA.filter(r=>{
     if(!inScope(r,F.t,F.y,F.ramo))return false;
     if(F.inf!=='all'&&ikey(r)!==F.inf)return false;
+    if(F.tk&&temaKeyOfJul(r)!==F.tk)return false;
     if(F.org!=='all'&&!r.org.split(' e ').includes(F.org))return false;
     if(F.p==='rg'&&!r.rg)return false;
     if(F.p==='rep'&&r.tipo!=='rep')return false;
@@ -572,7 +616,7 @@ function cardHTML(r,re){
   return `<article class="card${rd?' isread':''}" data-t="${r.t}" data-id="${r.id}">
     <div class="top"><span class="num">${esc(label(r))}${r.di?' · '+br(r.di):''}</span>
       <span class="chip">${esc(r.org)}</span>${r.dj?`<span class="chip">julg. ${br(r.dj)}${r.virt?' (virtual)':''}</span>`:''}
-      ${r.rg?`<span class="chip rg">Tema ${esc(r.rg)} RG</span>`:''}${r.rep?`<span class="chip rg">${esc(r.rep)}</span>`:''}${r.tipo==='afet'?'<span class="chip">Sem tese: tema afetado/pendente</span>':''}
+      ${r.rg?`<button type="button" class="chip rg" style="cursor:pointer;background:none" data-act="tema" data-k="${temaKeyOfJul(r)}" title="Abrir o tema">Tema ${esc(r.rg)} RG ↗</button>`:''}${r.rep?(temaKeyOfJul(r)?`<button type="button" class="chip rg" style="cursor:pointer;background:none" data-act="tema" data-k="${temaKeyOfJul(r)}" title="Abrir o tema">${esc(r.rep)} ↗</button>`:`<span class="chip rg">${esc(r.rep)}</span>`):''}${r.tipo==='afet'?'<span class="chip">Sem tese: tema afetado/pendente</span>':''}
       ${(r.ramos||[r.ramo]).map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>
     ${r.mat?`<div class="proc" style="font-size:12.5px">${hl(r.mat,re)}</div>`:''}
     <h3 class="tit">${hl(r.tit,re)}</h3>
@@ -589,7 +633,7 @@ function cardHTML(r,re){
     </div></article>`;
 }
 function renderList(reset){
-  if(reset){LIST=filterList();shown=0;$('#list').innerHTML=''}
+  if(reset){LIST=filterList();shown=0;$('#list').innerHTML='';$('#tkBar').hidden=!F.tk;if(F.tk){const [t,n]=F.tk.split('-');$('#tkTxt').innerHTML=`Mostrando os julgados do informativo ligados ao <b>${t} Tema ${n}</b>.`}}
   const re=hlRegex();const slice=LIST.slice(shown,shown+PAGE);shown+=slice.length;
   $('#list').insertAdjacentHTML('beforeend',slice.map(r=>cardHTML(r,re)).join(''));
   if(!LIST.length)$('#list').innerHTML='<div class="empty">Nenhum julgado encontrado com esses filtros.</div>';
@@ -608,8 +652,70 @@ function onListClick(e){
   const b=e.target.closest('[data-act]');if(!b)return;const id=b.closest('[data-id]').dataset.id;const r=BYID[id];
   if(b.dataset.act==='read'){setRead(id,!S.read[id]);save();updateCard(id);refreshHeader();$('#cntRead').textContent=fmt(LIST.filter(x=>S.read[x.id]).length)}
   else if(b.dataset.act==='imp'){if(S.imp[id])delete S.imp[id];else S.imp[id]=1;save();updateCard(id)}
+  else if(b.dataset.act==='tema'){openTema(b.dataset.k)}
   else if(b.dataset.act==='copy'){copyText(`${r.tit} (${r.proc}, ${label(r)}). ${r.tese?(r.t==='STJ'?'Destaque: ':'Tese: ')+r.tese+' ':''}${r.res}`)}
 }
+
+/* ---------- temas ---------- */
+const TF={q:'',t:'all',s:'julgado',ramo:'all',l:'all',o:'desc',only:''};let TLIST=[],tshown=0;
+const SC_NAME={julgado:'Mérito julgado',pendente:'Pendente',semrg:'Sem repercussão geral',cancelado:'Cancelado'};
+function temaCard(r,re){
+  const rd=!!S.read[r.id],im=!!S.imp[r.id];const jk=r.t+'-'+r.n;const nj=(JUL_BY_TEMA[jk]||[]).length;
+  return `<article class="card${rd?' isread':''}" data-t="${r.t}" data-id="${r.id}">
+    <div class="top"><span class="num">${esc(label(r))}</span><span class="chip${r.sc==='julgado'?' rg':''}">${SC_NAME[r.sc]}</span>
+      ${r.t==='STF'&&r.rgt?`<span class="chip">${esc(r.rgt)}</span>`:''}${r.org&&r.t==='STJ'?`<span class="chip">${esc(r.org)}</span>`:''}
+      ${r.ramos.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>
+    <h3 class="tit">${hl(r.tit,re)}</h3>
+    <div class="proc">${r.t==='STF'?'Leading case':'Processos'}: ${esc(r.proc||'—')}${r.rel?' · Rel. '+esc(r.rel):''}${r.d?` · ${r.t==='STF'?'RG reconhecida/apreciada em':'afetação em'} ${br(r.d)}`:''}${r.dj?' · julgado em '+br(r.dj):''}</div>
+    <div class="proc" style="font-size:12.5px">Situação no tribunal: ${esc(r.sit||'—')}</div>
+    ${r.tese?`<div class="tese"><div class="lb">${r.sc==='semrg'?'Tese (sem repercussão geral)':'Tese fixada'}</div><p>${hl(r.tese,re)}</p></div>`:'<p class="muted" style="margin:0">Ainda sem tese fixada.</p>'}
+    ${r.q?`<details class="more"><summary>Ler a descrição do tema</summary><div class="full"><p>${hl(r.q,re)}</p></div></details>`:''}
+    ${r.ic?`<details class="more"><summary>Informações complementares</summary><div class="full"><p class="muted" style="font-size:14px">${esc(r.ic)}</p></div></details>`:''}
+    <div class="acts">
+      <button type="button" class="tog rd" data-act="read" aria-pressed="${rd}">${rd?'✓ Lido':'○ Marcar como lido'}</button>
+      <button type="button" class="tog im" data-act="imp" aria-pressed="${im}">${im?'★ Importante':'☆ Importante'}</button>
+      ${nj?`<button type="button" class="btn sm" data-act="jul" data-k="${jk}">Ver ${nj} julgado${nj>1?'s':''} no informativo</button>`:''}
+      <span class="sp"></span>
+      <button type="button" class="lnk" data-act="copy">Copiar</button>
+      <a class="lnk" href="${esc(r.u)}" target="_blank" rel="noopener">Fonte oficial ↗</a>
+    </div></article>`;
+}
+function filterTemas(){
+  const q=norm(TF.q.trim());let num=null;const m=q.match(/^(?:tema\s*)?(\d+)$/);if(m)num=+m[1];
+  const words=num===null?q.replace(/\btema\b/g,' ').split(/\s+/).filter(Boolean).map(w=>w.replace(/\./g,'')):[];
+  const out=TEMAS.filter(r=>{
+    if(TF.only)return r.id===TF.only;
+    if(TF.t!=='all'&&r.t!==TF.t)return false;
+    if(num!==null)return r.n===num;
+    if(TF.s!=='all'&&r.sc!==TF.s)return false;
+    if(TF.ramo!=='all'&&!r.ramos.includes(TF.ramo))return false;
+    if(TF.l==='naolida'&&S.read[r.id])return false;if(TF.l==='lida'&&!S.read[r.id])return false;if(TF.l==='imp'&&!S.imp[r.id])return false;
+    for(const w of words)if(!r.k.includes(w))return false;return true});
+  out.sort((a,b)=>TF.o==='asc'?(a.n-b.n||a.t.localeCompare(b.t)):(b.n-a.n||a.t.localeCompare(b.t)));return out;
+}
+async function renderTemas(reset){
+  try{await ensureTemas()}catch(e){$('#tlist').innerHTML='<div class="empty">Não foi possível carregar os temas. Recarregue a página.</div>';return}
+  if(!Object.keys(JUL_BY_TEMA).length)DATA.forEach(r=>{const k=temaKeyOfJul(r);if(k)(JUL_BY_TEMA[k]=JUL_BY_TEMA[k]||[]).push(r.id)});
+  if(reset){TLIST=filterTemas();tshown=0;$('#tlist').innerHTML='';
+    if(TF.only){$('#tlist').insertAdjacentHTML('beforeend','<div class="meta-row"><span>Mostrando um tema aberto a partir de um julgado.</span><button class="btn sm" type="button" data-act="unonly">✕ Ver todos os temas</button></div>')}}
+  const qq=TF.q;const re=(()=>{const save=F.q;F.q=qq;const r=hlRegex();F.q=save;return r})();
+  const slice=TLIST.slice(tshown,tshown+PAGE);tshown+=slice.length;
+  $('#tlist').insertAdjacentHTML('beforeend',slice.map(r=>temaCard(r,re)).join(''));
+  if(!TLIST.length)$('#tlist').insertAdjacentHTML('beforeend','<div class="empty">Nenhum tema encontrado com esses filtros. Experimente mudar a situação para “Todas”.</div>');
+  $('#tmore').hidden=tshown>=TLIST.length;$('#tmore').textContent=`Mostrar mais (${fmt(TLIST.length-tshown)} restantes)`;
+  $('#tcnt').textContent=fmt(TLIST.length);$('#tcntRead').textContent=fmt(TLIST.filter(r=>S.read[r.id]).length);
+}
+function onTemaClick(e){
+  const b=e.target.closest('[data-act]');if(!b)return;
+  if(b.dataset.act==='unonly'){TF.only='';renderTemas(true);return}
+  const id=b.closest('[data-id]').dataset.id;const r=BYID[id];
+  if(b.dataset.act==='read'){setRead(id,!S.read[id]);save();const el=b.closest('.card');el.outerHTML=temaCard(r,null)}
+  else if(b.dataset.act==='imp'){if(S.imp[id])delete S.imp[id];else S.imp[id]=1;save();const el=b.closest('.card');el.outerHTML=temaCard(r,null)}
+  else if(b.dataset.act==='jul'){Object.assign(F,{q:'',t:'all',inf:'all',y:'all',ramo:'all',org:'all',p:'all',s:'all',tk:b.dataset.k});$('#q').value='';['#fI','#fY','#fR','#fG','#fP','#fS'].forEach(s=>$(s).value='all');$$('#segT button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t==='all'));location.hash='julgados';if(current==='julgados')renderList(true)}
+  else if(b.dataset.act==='copy'){copyText(`${label(r)}: ${r.tit}${r.tese?' Tese: '+r.tese:''}`)}
+}
+async function openTema(k){const [t,n]=k.split('-');try{await ensureTemas()}catch(e){toast('Não foi possível carregar os temas');return}
+  const id='T'+t+'-'+n;if(!BYID[id]){toast('Tema '+n+' não encontrado na base');return}TF.only=id;location.hash='temas';if(current==='temas')renderTemas(true)}
 
 /* ---------- cabeçalho ---------- */
 function refreshHeader(){
@@ -676,7 +782,7 @@ function dayBody(c){return c.map(r=>`<label class="mini" data-id="${r.id}"><inpu
 const FC={deck:[],i:0,ok:0,err:0,wrong:new Set(),mode:'tit'};
 function buildDeck(ids){
   const t=$('#fcT').value,y=$('#fcY').value,ra=$('#fcR').value,f=$('#fcF').value;FC.mode=$('#fcM').value;
-  FC.deck=ids?ids.slice():DATA.filter(r=>inScope(r,t,y,ra)&&studyText(r)&&(f==='all'||(f==='imp'&&S.imp[r.id])||(f==='naolida'&&!S.read[r.id])||(f==='tese'&&r.tese))).map(r=>r.id);
+  FC.deck=ids?ids.slice():basePool($('#fcB').value).filter(r=>inScope(r,t,y,ra)&&studyText(r)&&(f==='all'||(f==='imp'&&S.imp[r.id])||(f==='naolida'&&!S.read[r.id])||(f==='tese'&&r.tese))).map(r=>r.id);
   FC.i=0;FC.ok=0;FC.err=0;if(!ids)FC.wrong=new Set();renderFC();
 }
 function renderFC(){
@@ -711,7 +817,7 @@ function mutations(text){
 function applyMut(text,c){let after=text.slice(c.e);if(c.fix&&after)after=after[0].toLowerCase()+after.slice(1);if(c.k==='tirou'&&c.s===0&&after)after=after[0].toUpperCase()+after.slice(1);return text.slice(0,c.s)+c.r+after}
 const PV={items:[],i:0,ok:0,err:0,answered:null,errs:[]};
 function pvPool(){const t=$('#pvT').value,y=$('#pvY').value,ra=$('#pvR').value,f=$('#pvF').value;
-  return DATA.filter(r=>inScope(r,t,y,ra)&&studyText(r)&&(f==='all'||(f==='imp'&&S.imp[r.id])||(f==='lida'&&S.read[r.id])||(f==='errei'&&S.prova.wrong[r.id])))}
+  return basePool($('#pvB').value).filter(r=>inScope(r,t,y,ra)&&studyText(r)&&(f==='all'||(f==='imp'&&S.imp[r.id])||(f==='lida'&&S.read[r.id])||(f==='errei'&&S.prova.wrong[r.id])))}
 function pvBuild(ids){
   let pool=ids?ids.map(id=>BYID[id]):pvPool();
   if(!pool.length){toast('Nenhum julgado neste recorte');PV.items=[];renderProva();return}
@@ -722,7 +828,7 @@ function pvBuild(ids){
     return {id:r.id,certo:true,base,txt:base}});
   PV.i=0;PV.ok=0;PV.err=0;PV.answered=null;PV.errs=[];renderProva();
 }
-function pvLead(r){return `Segundo o ${r.t} (${r.org}${r.y?', '+r.y:''}):`}
+function pvLead(r){return r.kind==='tema'?(r.t==='STF'?'Tese de repercussão geral do STF:':'Tese de recurso repetitivo do STJ:'):`Segundo o ${r.t} (${r.org}${r.y?', '+r.y:''}):`}
 function markOrig(text,c){return esc(text.slice(0,c.s))+(c.o?`<mark class="o">${esc(c.o.trim())}</mark>${c.o.endsWith(' ')?' ':''}`:'<mark class="o">‸</mark>')+esc(text.slice(c.e))}
 function markMut(txt,c){const s=c.s,len=c.r.length;return esc(txt.slice(0,s))+(len?`<mark class="x">${esc(c.r.trim())}</mark>${c.r.endsWith(' ')?' ':''}`:'<mark class="x">‸</mark>')+esc(txt.slice(s+len))}
 function renderProva(){
@@ -754,8 +860,9 @@ function pvAnswer(saidCerto){if(PV.answered!==null||PV.i>=PV.items.length)return
 function pvNext(){if(PV.answered===null)return;PV.i++;PV.answered=null;renderProva()}
 
 /* ---------- revisão espaçada ---------- */
-function srScope(){return DATA.filter(r=>inScope(r,$('#srT').value,$('#srY').value,$('#srR').value)&&studyText(r)).sort((a,b)=>a.t.localeCompare(b.t)||a.sd.localeCompare(b.sd)||a.ord-b.ord)}
-function renderSR(){
+function srScope(){return basePool($('#srB').value).filter(r=>inScope(r,$('#srT').value,$('#srY').value,$('#srR').value)&&studyText(r)).sort((a,b)=>a.t.localeCompare(b.t)||a.sd.localeCompare(b.sd)||a.ord-b.ord)}
+async function renderSR(){
+  if($('#srB').value!=='jul'){try{await ensureTemas()}catch(e){}}
   const scope=srScope(),cnt={none:0,new:0,today:0,late:0,learn:0,master:0};scope.forEach(r=>cnt[srState(r.id)]++);
   const lr=Object.keys(S.srLog).sort().pop();
   $('#srTiles').innerHTML=[['Sequência',srStreak()+' dia'+(srStreak()===1?'':'s'),''],['Última revisão',lr?br(lr):'—',''],['Atrasados',fmt(cnt.late),'late'],['Para hoje',fmt(cnt.today),'today'],['Aprendidos',fmt(cnt.learn+cnt.master+cnt.new),'good'],['Não vistos',fmt(cnt.none),''],['Total',fmt(scope.length),'']].map(([k,v,c])=>`<div class="tile ${c}"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
@@ -792,9 +899,9 @@ function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){toast('Arquivo 
   ask(`Restaurar este backup? ${Object.keys(st.read||{}).length} leituras e ${Object.keys(st.sr||{}).length} cartões de revisão vão substituir o progresso atual.`,{okLabel:'Restaurar'}).then(ok=>{if(!ok)return;S=migrate(st);save();refreshAll();toast('Backup restaurado')})}
 
 /* ---------- navegação ---------- */
-const VIEWS=['julgados','progresso','cronograma','flashcards','prova','revisao','backup'];let current='julgados';
+const VIEWS=['julgados','temas','progresso','cronograma','flashcards','prova','revisao','backup'];let current='julgados';
 function route(){let v=location.hash.replace('#','');if(!VIEWS.includes(v))v='julgados';VIEWS.forEach(x=>$('#v-'+x).classList.toggle('on',x===v));$$('nav.views a').forEach(a=>a.setAttribute('aria-current',a.dataset.v===v?'page':'false'));renderView(v)}
-function renderView(v){current=v;if(v==='julgados')renderList(true);else if(v==='progresso')renderProgress();else if(v==='cronograma')renderPlan();else if(v==='flashcards'){if(!FC.deck.length)buildDeck();else renderFC()}else if(v==='prova')renderProva();else if(v==='revisao')renderSR();else if(v==='backup')renderBackup()}
+function renderView(v){current=v;if(v==='julgados')renderList(true);else if(v==='temas')renderTemas(true);else if(v==='progresso')renderProgress();else if(v==='cronograma')renderPlan();else if(v==='flashcards'){if(!FC.deck.length)buildDeck();else renderFC()}else if(v==='prova')renderProva();else if(v==='revisao')renderSR();else if(v==='backup')renderBackup()}
 function refreshAll(){refreshHeader();renderView(current)}
 
 function bind(){
@@ -811,13 +918,21 @@ function bind(){
   $('#pSave').onclick=()=>{S.plan={start:$('#pStart').value||today(),days:Math.max(1,Math.min(730,parseInt($('#pDays').value,10)||30)),t:$('#pT').value,y:$('#pY').value,r:$('#pR').value};save();renderPlan();toast('Cronograma gerado')};
   $('#planOut').addEventListener('click',e=>{const h=e.target.closest('.dh');if(!h)return;const day=h.parentElement,open=!day.classList.contains('open');day.classList.toggle('open',open);h.setAttribute('aria-expanded',open);const body=day.querySelector('.db');if(open&&!body.innerHTML)body.innerHTML=dayBody($('#planOut')._chunks[+day.dataset.i])});
   $('#planOut').addEventListener('change',e=>{const lab=e.target.closest('.mini');if(!lab)return;setRead(lab.dataset.id,e.target.checked);save();refreshHeader();const day=lab.closest('.day'),c=$('#planOut')._chunks[+day.dataset.i],rd=c.filter(r=>S.read[r.id]).length;day.querySelector('.pg span').textContent=`${rd}/${c.length} lidos`;day.querySelector('.pg i').style.width=pct(rd,c.length)+'%';day.classList.toggle('done',rd===c.length)});
-  $('#fcBuild').onclick=()=>buildDeck();$('#fcCard').onclick=()=>{if(FC.deck.length)$('#fcCard').classList.toggle('flip')};
+  $('#fcBuild').onclick=async()=>{if($('#fcB').value!=='jul'){try{await ensureTemas()}catch(e){toast('Não foi possível carregar os temas');return}}buildDeck()};$('#fcCard').onclick=()=>{if(FC.deck.length)$('#fcCard').classList.toggle('flip')};
   $('#fcPrev').onclick=()=>fcMove(-1);$('#fcNext').onclick=()=>fcMove(1);$('#fcYes').onclick=()=>fcAnswer(true);$('#fcNo').onclick=()=>fcAnswer(false);
   $('#fcShuffle').onclick=()=>{for(let i=FC.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[FC.deck[i],FC.deck[j]]=[FC.deck[j],FC.deck[i]]}FC.i=0;renderFC();toast('Baralho embaralhado')};
   $('#fcRestart').onclick=()=>{FC.i=0;FC.ok=0;FC.err=0;renderFC()};
   $('#fcErrOnly').onclick=()=>{if(!FC.wrong.size){toast('Nenhum erro registrado neste baralho');return}buildDeck([...FC.wrong])};
-  $('#pvStart').onclick=()=>pvBuild();
+  $('#pvStart').onclick=async()=>{if($('#pvB').value!=='jul'){try{await ensureTemas()}catch(e){toast('Não foi possível carregar os temas');return}}pvBuild()};
   ['#srT','#srY','#srR'].forEach(s=>$(s).onchange=renderSR);
+  $('#srB').onchange=async()=>{if($('#srB').value!=='jul'){try{await ensureTemas()}catch(e){toast('Não foi possível carregar os temas');return}}renderSR()};
+  // temas
+  let tqT;$('#tq').addEventListener('input',e=>{clearTimeout(tqT);tqT=setTimeout(()=>{TF.q=e.target.value;renderTemas(true)},180)});
+  $('#segTT').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;TF.t=b.dataset.t;$$('#segTT button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderTemas(true)});
+  [['#tS','s'],['#tR','ramo'],['#tL','l'],['#tO','o']].forEach(([s,k])=>$(s).onchange=e=>{TF[k]=e.target.value;renderTemas(true)});
+  $('#tmore').onclick=()=>renderTemas(false);
+  $('#tlist').addEventListener('click',onTemaClick);
+  $('#tkClear').onclick=()=>{F.tk='';renderList(true)};
   $('#srN').onchange=e=>{S.newPerDay=Math.max(1,Math.min(200,parseInt(e.target.value,10)||20));save();renderSR()};
   $('#cells').addEventListener('click',e=>{const b=e.target.closest('.cell');if(b)peek(b.dataset.id)});
   $('#peek').addEventListener('click',e=>{const b=e.target.closest('[data-study]');if(b)startStudy([b.dataset.study],'Revisão avulsa')});
